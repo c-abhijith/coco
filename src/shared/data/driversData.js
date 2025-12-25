@@ -1,5 +1,4 @@
-// src/shared/data/driversData.js
-// Master list of drivers + their metrics (Trips are referenced by tripIds)
+// Drivers - Core data only (no aggregates, no duplicate vehicle info)
 
 export const drivers = [
   {
@@ -12,7 +11,7 @@ export const drivers = [
     city: 'Kochi',
     address: 'Flat 2B, MG Road, Kochi',
     pinCode: '682016',
-    profileImage: null, // Photo
+    profileImage: null,
 
     // Contacts
     mobile: '9847000001',
@@ -20,64 +19,37 @@ export const drivers = [
     email: 'rahul.das@cococabs.in',
     emergencyContact: 'Anu Das - 9895001122',
 
-    // Vehicle / cab
-    cabType: 'SEDAN',
-    vehicleNumber: 'KL-07-AB-1234',
+    // Vehicle assignment
+    vehicleId: 'V001',
+
+    // License
     drivingLicenseNumber: 'KL0720110001234',
     licenseExpiryDate: '2028-03-31',
     licenseIssuingState: 'Kerala',
 
-    // Employment
+    // Employment & Status
     joiningDate: '2023-02-01',
     onboardedOn: '2023-02-05',
-    status: 'Active', // Active / Inactive
-    onlineStatus: 'Online', // Online / Offline
+    status: 'Active',
+    onlineStatus: 'Online',
     lastActiveTime: '2025-01-15T10:05:00',
     whenWentOnlineToday: '2025-01-15T07:45:00',
-    onlineHoursToday: 2.5, // hours
+    onlineHoursToday: 2.5,
 
-    // Ratings & complaints
-    rating: 4.7,
+    // Performance metrics (not calculable from trips alone)
+    isIdleOnline: false,
+    driverUtilizationPct: 78,
+    acceptanceRatePct: 94,
+    cancellationRatePct: 6,
+    noShowCount: 0,
+    tripsPerOnlineHour: 1.2,
+
+    // Complaints & ratings
+    complaintsCount: 1,
+    complaintsPer100Trips: 2.5,
     lastTripRating: 4.9,
     lastTripRating7Days: 4.8,
     lastTripRating30Days: 4.7,
-    complaintsCount: 1, // number of complaints raised against this driver
-    complaintsPer100Trips: 2.5,
-
-    // Trips & utilisation
-    totalTripsCompleted: 40,
-    tripsToday: 3,
-    tripsLast7Days: 18,
-    tripsLast30Days: 55,
-    droveToday: true,
-    isIdleOnline: false,
-    driverUtilizationPct: 78, // utilisation %
-    acceptanceRatePct: 94, // accepted / assigned
-    cancellationRatePct: 6, // driver initiated
-    noShowCount: 0,
-    tripsPerOnlineHour: 1.2,
-    averageTripsPerDriver: null, // computed globally in UI
-
-    // Earnings + cash
-    totalEarningsLifetime: 23500,
-    earningsLast7Days: 5200,
-    earningsLast30Days: 18200,
-    cashCollectToday: 300,
-    cashCollectYesterday: 450,
-    cashCollectDayBeforeYesterday: 260,
-
-    // Payout & penalties
-    hasPendingPayout: true,
-    lastPayoutDate: '2025-01-10',
-    lastPayoutAmount: 8200,
-    payoutMethod: 'Bank', // Bank / UPI
-    ifsc: 'KKBK0009123',
-    bankMaskedAccount: 'XXXXXXXX1234',
-    amountPayableNextPayout: 2500, // Amount payable to driver (next payout)
-    totalPenaltiesCount: 1,
-    totalPenaltiesAmount: 300,
-    totalPenaltiesPaid: 100,
-    totalPenaltiesPending: 200,
 
     // Compliance / KYC
     aadhaarNumber: 'XXXX-XXXX-1234',
@@ -89,31 +61,23 @@ export const drivers = [
     backgroundVerificationStatus: 'Completed',
     kycStatus: 'Approved',
     kycRejectionReason: '',
-    driversOnWatchlistOrBlocked: false,
 
-    // Device / app / GPS
+    // Payout info
+    payoutMethod: 'Bank',
+    ifsc: 'KKBK0009123',
+    bankMaskedAccount: 'XXXXXXXX1234',
+
+    // Device / app
     driverAppVersion: '2.5.1',
     lastGpsHeartbeatUrl: 'https://maps.google.com/?q=9.9312,76.2673',
     onlineNow: true,
     activeAccount: true,
     loginOtp: '****',
 
-    // Docs / misc
-    docsExpiringNext15Days: 0,
+    // Misc
     remark: 'Reliable for corporate morning trips.',
 
-    // Scheduled trips
-    scheduledToday: 2,
-    scheduledTomorrow: 3,
-    scheduledDayAfter: 1,
-    totalScheduledTripsAccepted: 10,
-    upcomingScheduledTrips: 4,
-    totalScheduledTripsCancelled: 1,
-
-    // Aggregation helpers (optional, used by UI)
-    totalDriversSnapshot: null, // filled globally in UI
-
-    // ✅ Trip references
+    // Trip references
     tripIds: ['T10001', 'T10002'],
   },
 
@@ -133,8 +97,8 @@ export const drivers = [
     email: 'sajith.pillai@cococabs.in',
     emergencyContact: 'Father - 9847001111',
 
-    cabType: 'HATCHBACK',
-    vehicleNumber: 'KL-07-CD-5678',
+    vehicleId: 'V002',
+
     drivingLicenseNumber: 'KL0720120005678',
     licenseExpiryDate: '2027-11-30',
     licenseIssuingState: 'Kerala',
@@ -147,18 +111,6 @@ export const drivers = [
     whenWentOnlineToday: null,
     onlineHoursToday: 0,
 
-    rating: 4.5,
-    lastTripRating: 4.6,
-    lastTripRating7Days: 4.5,
-    lastTripRating30Days: 4.4,
-    complaintsCount: 2,
-    complaintsPer100Trips: 4.1,
-
-    totalTripsCompleted: 32,
-    tripsToday: 0,
-    tripsLast7Days: 10,
-    tripsLast30Days: 35,
-    droveToday: false,
     isIdleOnline: false,
     driverUtilizationPct: 65,
     acceptanceRatePct: 88,
@@ -166,24 +118,11 @@ export const drivers = [
     noShowCount: 1,
     tripsPerOnlineHour: 0.9,
 
-    totalEarningsLifetime: 17800,
-    earningsLast7Days: 4100,
-    earningsLast30Days: 13200,
-    cashCollectToday: 0,
-    cashCollectYesterday: 350,
-    cashCollectDayBeforeYesterday: 220,
-
-    hasPendingPayout: false,
-    lastPayoutDate: '2025-01-08',
-    lastPayoutAmount: 6400,
-    payoutMethod: 'UPI',
-    ifsc: 'HDFC0001234',
-    bankMaskedAccount: 'XXXXXXXX9988',
-    amountPayableNextPayout: 0,
-    totalPenaltiesCount: 2,
-    totalPenaltiesAmount: 500,
-    totalPenaltiesPaid: 500,
-    totalPenaltiesPending: 0,
+    complaintsCount: 2,
+    complaintsPer100Trips: 4.1,
+    lastTripRating: 4.6,
+    lastTripRating7Days: 4.5,
+    lastTripRating30Days: 4.4,
 
     aadhaarNumber: 'XXXX-XXXX-5678',
     aadhaarLink: '',
@@ -194,24 +133,19 @@ export const drivers = [
     backgroundVerificationStatus: 'In Progress',
     kycStatus: 'Pending',
     kycRejectionReason: '',
-    driversOnWatchlistOrBlocked: false,
+
+    payoutMethod: 'UPI',
+    ifsc: 'HDFC0001234',
+    bankMaskedAccount: 'XXXXXXXX9988',
 
     driverAppVersion: '2.5.0',
     lastGpsHeartbeatUrl: null,
     onlineNow: false,
     activeAccount: true,
     loginOtp: '****',
-    docsExpiringNext15Days: 1,
+
     remark: 'Needs follow-up on police verification.',
 
-    scheduledToday: 0,
-    scheduledTomorrow: 1,
-    scheduledDayAfter: 0,
-    totalScheduledTripsAccepted: 3,
-    upcomingScheduledTrips: 1,
-    totalScheduledTripsCancelled: 1,
-
-    // ✅ Trip references
     tripIds: ['T20001'],
   },
 
@@ -231,8 +165,8 @@ export const drivers = [
     email: 'meera.joseph@cococabs.in',
     emergencyContact: 'Mother - 9847002222',
 
-    cabType: 'SUV',
-    vehicleNumber: 'KL-07-EF-9012',
+    vehicleId: 'V003',
+
     drivingLicenseNumber: 'KL0720130009012',
     licenseExpiryDate: '2029-01-31',
     licenseIssuingState: 'Kerala',
@@ -245,18 +179,6 @@ export const drivers = [
     whenWentOnlineToday: '2025-01-15T06:30:00',
     onlineHoursToday: 3.2,
 
-    rating: 4.9,
-    lastTripRating: 5.0,
-    lastTripRating7Days: 4.9,
-    lastTripRating30Days: 4.9,
-    complaintsCount: 0,
-    complaintsPer100Trips: 0,
-
-    totalTripsCompleted: 25,
-    tripsToday: 2,
-    tripsLast7Days: 14,
-    tripsLast30Days: 30,
-    droveToday: true,
     isIdleOnline: true,
     driverUtilizationPct: 72,
     acceptanceRatePct: 97,
@@ -264,24 +186,11 @@ export const drivers = [
     noShowCount: 0,
     tripsPerOnlineHour: 1.1,
 
-    totalEarningsLifetime: 21000,
-    earningsLast7Days: 5400,
-    earningsLast30Days: 16900,
-    cashCollectToday: 200,
-    cashCollectYesterday: 280,
-    cashCollectDayBeforeYesterday: 310,
-
-    hasPendingPayout: true,
-    lastPayoutDate: '2025-01-09',
-    lastPayoutAmount: 7200,
-    payoutMethod: 'Bank',
-    ifsc: 'SBI0004567',
-    bankMaskedAccount: 'XXXXXXXX7766',
-    amountPayableNextPayout: 3100,
-    totalPenaltiesCount: 0,
-    totalPenaltiesAmount: 0,
-    totalPenaltiesPaid: 0,
-    totalPenaltiesPending: 0,
+    complaintsCount: 0,
+    complaintsPer100Trips: 0,
+    lastTripRating: 5.0,
+    lastTripRating7Days: 4.9,
+    lastTripRating30Days: 4.9,
 
     aadhaarNumber: 'XXXX-XXXX-9012',
     aadhaarLink: '',
@@ -292,111 +201,86 @@ export const drivers = [
     backgroundVerificationStatus: 'Completed',
     kycStatus: 'Approved',
     kycRejectionReason: '',
-    driversOnWatchlistOrBlocked: false,
+
+    payoutMethod: 'Bank',
+    ifsc: 'SBI0004567',
+    bankMaskedAccount: 'XXXXXXXX7766',
 
     driverAppVersion: '2.5.1',
     lastGpsHeartbeatUrl: 'https://maps.google.com/?q=9.9825,76.2999',
     onlineNow: true,
     activeAccount: true,
     loginOtp: '****',
-    docsExpiringNext15Days: 0,
+
     remark: 'Top-rated SUV driver.',
 
-    scheduledToday: 1,
-    scheduledTomorrow: 2,
-    scheduledDayAfter: 2,
-    totalScheduledTripsAccepted: 6,
-    upcomingScheduledTrips: 3,
-    totalScheduledTripsCancelled: 0,
-
-    // ✅ Trip references
     tripIds: ['T30001'],
-  },,
+  },
   {
-    "id": "D1004",
-    "name": "ABHIJITH CHANDRANPILLAI",
-    "gender": "Male",
-    "dateOfBirth": "1999-02-09",
-    "driverAge": 26,
-    "city": "fsdf",
-    "address": "fasdfasd",
-    "pinCode": "3453453",
-    "profileImage": null,
-    "mobile": "1234567890",
-    "secondaryMobile": "1234567890",
-    "email": "abhijithabhipgmr@gamil.com",
-    "emergencyContact": "1234567890",
-    "cabType": "SUV",
-    "vehicleNumber": "KL-09-K-9752",
-    "drivingLicenseNumber": "1234rtyhui90-",
-    "licenseExpiryDate": "2028-06-06",
-    "licenseIssuingState": "Kerala",
-    "joiningDate": "2025-12-02",
-    "onboardedOn": "2026-01-22",
-    "status": "Active",
-    "onlineStatus": "Online",
-    "lastActiveTime": "",
-    "whenWentOnlineToday": "",
-    "onlineHoursToday": 0,
-    "rating": 0,
-    "lastTripRating": 0,
-    "lastTripRating7Days": 0,
-    "lastTripRating30Days": 0,
-    "complaintsCount": 0,
-    "complaintsPer100Trips": 0,
-    "totalTripsCompleted": 0,
-    "tripsToday": 0,
-    "tripsLast7Days": 0,
-    "tripsLast30Days": 0,
-    "droveToday": false,
-    "isIdleOnline": false,
-    "driverUtilizationPct": 0,
-    "acceptanceRatePct": 0,
-    "cancellationRatePct": 0,
-    "noShowCount": 0,
-    "tripsPerOnlineHour": 0,
-    "averageTripsPerDriver": null,
-    "totalEarningsLifetime": 0,
-    "earningsLast7Days": 0,
-    "earningsLast30Days": 0,
-    "cashCollectToday": 0,
-    "cashCollectYesterday": 0,
-    "cashCollectDayBeforeYesterday": 0,
-    "hasPendingPayout": false,
-    "lastPayoutDate": "",
-    "lastPayoutAmount": 0,
-    "payoutMethod": "Bank",
-    "ifsc": "",
-    "bankMaskedAccount": "",
-    "amountPayableNextPayout": 0,
-    "totalPenaltiesCount": 0,
-    "totalPenaltiesAmount": 0,
-    "totalPenaltiesPaid": 0,
-    "totalPenaltiesPending": 0,
-    "aadhaarNumber": "",
-    "aadhaarLink": "",
-    "panNumber": "",
-    "panImageUrl": null,
-    "licenseImageUrl": null,
-    "policeVerificationStatus": "Pending",
-    "backgroundVerificationStatus": "Pending",
-    "kycStatus": "Pending",
-    "kycRejectionReason": "",
-    "driversOnWatchlistOrBlocked": false,
-    "driverAppVersion": "",
-    "lastGpsHeartbeatUrl": null,
-    "onlineNow": true,
-    "activeAccount": true,
-    "loginOtp": "****",
-    "docsExpiringNext15Days": 0,
-    "remark": "afjdsjhfkljasdklfj",
-    "scheduledToday": 0,
-    "scheduledTomorrow": 0,
-    "scheduledDayAfter": 0,
-    "totalScheduledTripsAccepted": 0,
-    "upcomingScheduledTrips": 0,
-    "totalScheduledTripsCancelled": 0,
-    "totalDriversSnapshot": null,
-    "tripIds": []
-  }
+    id: 'D1004',
+    name: 'ABHIJITH CHANDRANPILLAI',
+    gender: 'Male',
+    dateOfBirth: '1999-02-09',
+    driverAge: 26,
+    city: 'fsdf',
+    address: 'fasdfasd',
+    pinCode: '3453453',
+    profileImage: null,
+
+    mobile: '1234567890',
+    secondaryMobile: '1234567890',
+    email: 'abhijithabhipgmr@gamil.com',
+    emergencyContact: '1234567890',
+
+    vehicleId: null,
+
+    drivingLicenseNumber: '1234rtyhui90-',
+    licenseExpiryDate: '2028-06-06',
+    licenseIssuingState: 'Kerala',
+
+    joiningDate: '2025-12-02',
+    onboardedOn: '2026-01-22',
+    status: 'Active',
+    onlineStatus: 'Online',
+    lastActiveTime: '',
+    whenWentOnlineToday: '',
+    onlineHoursToday: 0,
+
+    isIdleOnline: false,
+    driverUtilizationPct: 0,
+    acceptanceRatePct: 0,
+    cancellationRatePct: 0,
+    noShowCount: 0,
+    tripsPerOnlineHour: 0,
+
+    complaintsCount: 0,
+    complaintsPer100Trips: 0,
+    lastTripRating: 0,
+    lastTripRating7Days: 0,
+    lastTripRating30Days: 0,
+
+    aadhaarNumber: '',
+    aadhaarLink: '',
+    panNumber: '',
+    panImageUrl: null,
+    licenseImageUrl: null,
+    policeVerificationStatus: 'Pending',
+    backgroundVerificationStatus: 'Pending',
+    kycStatus: 'Pending',
+    kycRejectionReason: '',
+
+    payoutMethod: 'Bank',
+    ifsc: '',
+    bankMaskedAccount: '',
+
+    driverAppVersion: '',
+    lastGpsHeartbeatUrl: null,
+    onlineNow: true,
+    activeAccount: true,
+    loginOtp: '****',
+
+    remark: 'afjdsjhfkljasdklfj',
+
+    tripIds: [],
+  },
 ]

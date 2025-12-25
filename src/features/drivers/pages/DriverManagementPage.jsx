@@ -3,6 +3,8 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getDrivers } from '../../../shared/data/driver'
 import { getDriverLogoffState, setDriverLogoffState } from '../../../shared/data/driverLogoff'
+import { getTripsByDriverId } from '../../../shared/data/driverTrips'
+import { getVehicleByDriverId } from '../../../shared/data/vehicle'
 import { DriverDropdown } from '../../../shared/components/DriverDropdown'
 import { PageHeader } from '../../../shared/components/PageHeader'
 import { TabNavigation } from '../../../shared/components/TabNavigation'
@@ -95,7 +97,17 @@ export function DriverManagementPage() {
   // If driver selected -> use driverMetrics, else global
   const metrics = selectedDriver ? driverMetrics : globalMetrics
 
-  const trips = selectedDriver?.trips || []
+  // Get trips for selected driver using normalized data
+  const trips = useMemo(() => {
+    if (!selectedDriver) return []
+    return getTripsByDriverId(selectedDriver.id)
+  }, [selectedDriver])
+
+  // Get vehicle for selected driver
+  const driverVehicle = useMemo(() => {
+    if (!selectedDriver) return null
+    return getVehicleByDriverId(selectedDriver.id)
+  }, [selectedDriver])
 
   // Helpers for other tabs
   const onlineDrivers = useMemo(
@@ -264,8 +276,13 @@ export function DriverManagementPage() {
             </section>
           )}
 
-          {selectedDriver && (
-            <VehiclesSection driver={selectedDriver} onNavigate={navigate} />
+          {/* Driver's Vehicle */}
+          {selectedDriver && driverVehicle && (
+            <VehiclesSection
+              driver={selectedDriver}
+              vehicle={driverVehicle}
+              onNavigate={navigate}
+            />
           )}
 
           {/* Trips grid for selected driver */}

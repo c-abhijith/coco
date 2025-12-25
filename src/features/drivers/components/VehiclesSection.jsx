@@ -1,67 +1,76 @@
 import React from 'react'
 
-export function VehiclesSection({ driver, onNavigate }) {
+export function VehiclesSection({ driver, vehicle, onNavigate }) {
   if (!driver) return null
 
-  const vehicles =
-    Array.isArray(driver?.vehicles) && driver.vehicles.length
-      ? driver.vehicles
-      : driver
-      ? [
-          {
-            vehicleId: `V-${driver.id}-01`,
-            cabType: driver.cabType,
-            vehicleNumber: driver.vehicleNumber,
-            status: 'Active',
-            remark: 'Primary vehicle',
-          },
-        ]
-      : []
+  // If no vehicle provided, try to get it from driver object
+  const vehicleData = vehicle || (driver.vehicleNumber ? {
+    id: driver.vehicleId,
+    vehicleNumber: driver.vehicleNumber,
+    cabType: driver.cabType,
+    status: 'Active'
+  } : null)
 
   return (
-    <div className="mt-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
       <div className="text-xs font-semibold text-slate-500 uppercase tracking-[0.18em] mb-3">
-        Vehicles
+        Driver's Vehicle
       </div>
 
-      {vehicles.length === 0 ? (
-        <div className="text-sm text-slate-600">No vehicles added.</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {vehicles.map((v) => (
-            <button
-              key={v.vehicleId}
-              type="button"
-              onClick={() =>
-                onNavigate(
-                  `/vehicles?driverId=${encodeURIComponent(driver.id)}&vehicleId=${encodeURIComponent(v.vehicleId)}`,
-                )
-              }
-              className="text-left rounded-2xl border border-slate-200 bg-white p-4 hover:bg-slate-50 transition"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-sm font-bold text-slate-900">
-                  {v.vehicleNumber}
-                </div>
-                <span className="text-xs font-semibold px-2 py-1 rounded-lg border border-slate-200 text-slate-600">
-                  {v.cabType}
-                </span>
-              </div>
-
-              <div className="mt-2 text-sm text-slate-700">
-                Status: <span className="font-semibold">{v.status || '—'}</span>
-              </div>
-
-              {v.remark ? (
-                <div className="mt-1 text-xs text-slate-500">{v.remark}</div>
-              ) : null}
-
-              <div className="mt-3 text-xs font-semibold text-slate-600">
-                Click to view vehicle details →
-              </div>
-            </button>
-          ))}
+      {!vehicleData ? (
+        <div className="text-sm text-slate-600 py-2 text-center">
+          No vehicle assigned to this driver.
         </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() =>
+            onNavigate(
+              `/vehicles?vehicleNumber=${encodeURIComponent(vehicleData.vehicleNumber)}`,
+            )
+          }
+          className="w-full text-left rounded-xl border border-slate-200 bg-white p-3 hover:border-brand-yellow hover:bg-slate-50 transition-all"
+        >
+          {/* Compact Header */}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="text-sm font-bold text-slate-900">
+              {vehicleData.vehicleNumber}
+            </div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-brand-yellow text-slate-900">
+              {vehicleData.cabType}
+            </span>
+          </div>
+
+          {/* Compact Details */}
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+            {vehicleData.vehicleName && (
+              <div className="text-slate-600">
+                <span className="text-slate-500">Model:</span> {vehicleData.vehicleName}
+              </div>
+            )}
+            {vehicleData.brand && (
+              <div className="text-slate-600">
+                <span className="text-slate-500">Brand:</span> {vehicleData.brand}
+              </div>
+            )}
+            <div className="text-emerald-600 font-medium">
+              {vehicleData.status || 'Active'}
+            </div>
+            {vehicleData.color && (
+              <div className="text-slate-600">
+                <span className="text-slate-500">Color:</span> {vehicleData.color}
+              </div>
+            )}
+          </div>
+
+          {/* Compact Call to Action */}
+          <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="text-slate-500">View details</span>
+            <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </button>
       )}
     </div>
   )

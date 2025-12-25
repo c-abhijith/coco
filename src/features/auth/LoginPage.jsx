@@ -134,7 +134,7 @@ export function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-xs text-slate-500">
-          <p>&copy; 2025 Coco Cabs. All rights reserved.</p>
+          <p>&copy; 2026 Coco Cabs. All rights reserved.</p>
         </div>
       </div>
     </div>

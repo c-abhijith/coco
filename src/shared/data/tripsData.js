@@ -1,19 +1,16 @@
-const gmap = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`
+import { gmap } from '../utils/mapHelpers'
 
 export const trips = [
   {
     id: 'T10001',
     driverId: 'D1001',
+    riderId: 'R1001',
+    vehicleId: 'V001',
     createdTime: '2025-01-10T09:15:00',
     tripStatus: 'Completed',
     paymentType: 'ONLINE',
     totalFare: 250,
     distanceKm: 12.4,
-
-    // Rider info
-    riderName: 'Anand Kumar',
-    riderMobile: '9998887771',
-    riderEmail: 'anand.kumar@example.com',
 
     // Location info
     pickLocationAddress: 'MG Road, Kochi',
@@ -34,12 +31,6 @@ export const trips = [
     scheduleStatus: null,
     scheduleTime: null,
 
-    // Driver info
-    assignedDriver: 'Rahul Das',
-    driverMobile: '9847000001',
-    cabType: 'SEDAN',
-    vehicleNumber: 'KL-07-AB-1234',
-
     // Rating & misc
     ratingGivenByRider: 5,
     isCarrierRequested: false,
@@ -47,15 +38,13 @@ export const trips = [
   {
     id: 'T10002',
     driverId: 'D1001',
+    riderId: 'R1002',
+    vehicleId: 'V001',
     createdTime: '2025-01-11T18:40:00',
     tripStatus: 'Completed',
     paymentType: 'CASH',
     totalFare: 220,
     distanceKm: 10.1,
-
-    riderName: 'Bhavana Nair',
-    riderMobile: '9998887772',
-    riderEmail: 'bhavana.nair@example.com',
 
     pickLocationAddress: 'Vytilla Mobility Hub, Kochi',
     pickLocationMap: gmap('Vytilla Mobility Hub, Kochi'),
@@ -73,26 +62,19 @@ export const trips = [
     scheduleStatus: null,
     scheduleTime: null,
 
-    assignedDriver: 'Rahul Das',
-    driverMobile: '9847000001',
-    cabType: 'SEDAN',
-    vehicleNumber: 'KL-07-AB-1234',
-
     ratingGivenByRider: 4,
     isCarrierRequested: false,
   },
   {
     id: 'T20001',
     driverId: 'D1002',
+    riderId: 'R1003',
+    vehicleId: 'V002',
     createdTime: '2025-01-12T21:10:00',
     tripStatus: 'Completed',
     paymentType: 'ONLINE',
     totalFare: 300,
     distanceKm: 15.2,
-
-    riderName: 'Salim Rahman',
-    riderMobile: '9998887773',
-    riderEmail: 'salim.rahman@example.com',
 
     pickLocationAddress: 'Edappally, Kochi',
     pickLocationMap: gmap('Edappally, Kochi'),
@@ -110,26 +92,19 @@ export const trips = [
     scheduleStatus: null,
     scheduleTime: null,
 
-    assignedDriver: 'Sajith Pillai',
-    driverMobile: '9847000002',
-    cabType: 'HATCHBACK',
-    vehicleNumber: 'KL-07-CD-5678',
-
     ratingGivenByRider: 5,
     isCarrierRequested: false,
   },
   {
     id: 'T30001',
     driverId: 'D1003',
+    riderId: 'R1002',
+    vehicleId: 'V003',
     createdTime: '2025-01-09T07:30:00',
     tripStatus: 'Completed',
     paymentType: 'ONLINE',
     totalFare: 410,
     distanceKm: 20.6,
-
-    riderName: 'Bhavana Nair',
-    riderMobile: '9998887772',
-    riderEmail: 'bhavana.nair@example.com',
 
     pickLocationAddress: 'Tripunithura, Kochi',
     pickLocationMap: gmap('Tripunithura, Kochi'),
@@ -146,11 +121,6 @@ export const trips = [
     tripType: 'Instant',
     scheduleStatus: null,
     scheduleTime: null,
-
-    assignedDriver: 'Meera Joseph',
-    driverMobile: '9847000003',
-    cabType: 'SUV',
-    vehicleNumber: 'KL-07-EF-9012',
 
     ratingGivenByRider: 5,
     isCarrierRequested: true,
