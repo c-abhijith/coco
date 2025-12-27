@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 /**
  * SidePopup Component
@@ -13,6 +13,23 @@ import React, { useEffect } from 'react'
  * @param {string} emptyMessage - Message to show when data is empty
  */
 export function SidePopup({ isOpen, onClose, title, data = [], renderItem, emptyMessage = 'No data available' }) {
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [shouldRender, setShouldRender] = useState(false)
+
+  // Handle opening and closing animations
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true)
+      // Small delay to trigger opening animation
+      setTimeout(() => setIsAnimating(true), 10)
+    } else {
+      // Trigger closing animation
+      setIsAnimating(false)
+      // Unmount after animation completes
+      const timer = setTimeout(() => setShouldRender(false), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen])
 
   // Close on Escape key
   useEffect(() => {
@@ -34,18 +51,22 @@ export function SidePopup({ isOpen, onClose, title, data = [], renderItem, empty
     }
   }, [isOpen, onClose])
 
-  if (!isOpen) return null
+  if (!shouldRender) return null
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+        className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${
+          isAnimating ? 'bg-opacity-50' : 'bg-opacity-0'
+        }`}
         onClick={onClose}
       />
 
       {/* Side Panel */}
-      <div className="fixed top-0 right-0 h-full w-full max-w-2xl bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col">
+      <div className={`fixed top-0 right-0 h-full w-full max-w-2xl bg-white shadow-2xl z-50 transform transition-all duration-300 ease-out flex flex-col ${
+        isAnimating ? 'translate-x-0' : 'translate-x-full'
+      }`}>
         {/* Header */}
         <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between bg-slate-50">
           <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
