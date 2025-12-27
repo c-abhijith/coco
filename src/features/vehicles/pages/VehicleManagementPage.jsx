@@ -6,9 +6,11 @@ import { PageHeader } from '../../../shared/components/PageHeader'
 import { TabNavigation } from '../../../shared/components/TabNavigation'
 import { SidePopup } from '../../../shared/components/SidePopup'
 import { computeVehicleMetrics } from '../utils/vehicleMetrics'
+import { showSuccess, showError } from '../../../shared/utils/alerts'
 import {
   VehicleProfileSection,
 } from '../components/VehicleProfileSection'
+import { VehicleBlockControl } from '../components/VehicleBlockControl'
 import {
   VehicleMetricsGrid,
   VehiclePerformanceMetrics,
@@ -153,25 +155,24 @@ export function VehicleManagementPage() {
     setSearchParams(next, { replace: true })
   }
 
-  const handleBlockVehicle = async (vehicleId, e) => {
-    e.stopPropagation()
+  /**
+   * Handle block/unblock state change from VehicleBlockControl component
+   * @param {string} vehicleId - The vehicle ID
+   * @param {boolean} isBlocked - Whether to block or unblock
+   * @param {string} reason - The reason for blocking (empty for unblock)
+   */
+  const handleBlockStateChange = async (vehicleId, isBlocked, reason) => {
     try {
-      await blockVehicle(vehicleId)
+      if (isBlocked) {
+        await blockVehicle(vehicleId, reason)
+      } else {
+        await unblockVehicle(vehicleId)
+      }
       setRefreshKey((prev) => prev + 1)
     } catch (error) {
-      console.error('Failed to block vehicle:', error)
-      alert(`Error: ${error.message}`)
-    }
-  }
-
-  const handleUnblockVehicle = async (vehicleId, e) => {
-    e.stopPropagation()
-    try {
-      await unblockVehicle(vehicleId)
-      setRefreshKey((prev) => prev + 1)
-    } catch (error) {
-      console.error('Failed to unblock vehicle:', error)
-      alert(`Error: ${error.message}`)
+      console.error('Failed to update vehicle block status:', error)
+      showError('Error', `Failed to update vehicle: ${error.message}`)
+      throw error // Re-throw so the component knows it failed
     }
   }
 
@@ -292,7 +293,7 @@ export function VehicleManagementPage() {
                 placeholder="Search by vehicle number..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 rounded-lg border-2 border-yellow-400 bg-yellow-50 px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                className="w-64 rounded-lg border-2 border-yellow-400 bg-yellow-50 px-3 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
               />
               <button
                 onClick={() => {
@@ -302,7 +303,7 @@ export function VehicleManagementPage() {
                   setTripStatusFilter('all')
                   setBlockedFilter('all')
                 }}
-                className="px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+                className="px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors whitespace-nowrap"
               >
                 Clear All
               </button>
@@ -335,6 +336,12 @@ export function VehicleManagementPage() {
               {/* Vehicle Profile Section */}
               <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-5 space-y-5">
                 <VehicleProfileSection vehicle={selectedVehicle} />
+
+                {/* Vehicle Block Control */}
+                <VehicleBlockControl
+                  vehicle={selectedVehicle}
+                  onBlockStateChange={handleBlockStateChange}
+                />
 
                 {/* Trip & Performance Metrics */}
                 <VehiclePerformanceMetrics
@@ -373,7 +380,20 @@ export function VehicleManagementPage() {
           <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 space-y-3">
             {/* Online/Offline Status Filter */}
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-2">Status</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold text-slate-600">Status</label>
+                <button
+                  onClick={() => {
+                    setStatusFilter('all')
+                    setCabTypeFilter('all')
+                    setTripStatusFilter('all')
+                    setBlockedFilter('all')
+                  }}
+                  className="px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setStatusFilter('all')}
@@ -596,14 +616,13 @@ export function VehicleManagementPage() {
                   <th className="px-4 py-3">Driver</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Total Trips</th>
-                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {filteredVehicles.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-6 text-center text-sm text-slate-500">
+                    <td colSpan={7} className="px-4 py-6 text-center text-sm text-slate-500">
                       {searchQuery ? 'No vehicles match your search.' : 'No vehicles found.'}
                     </td>
                   </tr>
@@ -664,23 +683,6 @@ export function VehicleManagementPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-slate-700">{vehicle.totalTripsCompleted}</td>
-                      <td className="px-4 py-3">
-                        {vehicle.blocked ? (
-                          <button
-                            onClick={(e) => handleUnblockVehicle(vehicle.id, e)}
-                            className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
-                          >
-                            Unblock
-                          </button>
-                        ) : (
-                          <button
-                            onClick={(e) => handleBlockVehicle(vehicle.id, e)}
-                            className="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                          >
-                            Block
-                          </button>
-                        )}
-                      </td>
                     </tr>
                   ))
                 )}

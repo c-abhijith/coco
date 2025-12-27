@@ -18,10 +18,14 @@ function loadBlockedStatus() {
 }
 
 // Save blocked status to localStorage
-function saveBlockedStatus(vehicleId, isBlocked) {
+function saveBlockedStatus(vehicleId, isBlocked, reason = '') {
   try {
     const blockedStatus = loadBlockedStatus()
-    blockedStatus[vehicleId] = isBlocked
+    blockedStatus[vehicleId] = {
+      blocked: isBlocked,
+      reason: reason,
+      timestamp: new Date().toISOString()
+    }
     localStorage.setItem(STORAGE_KEYS.VEHICLE_BLOCKED_STATUS, JSON.stringify(blockedStatus))
   } catch (error) {
     console.error('Failed to save blocked status:', error)
@@ -33,9 +37,25 @@ function getVehiclesWithStatus() {
   const blockedStatus = loadBlockedStatus()
   return baseVehicles.map((vehicle) => {
     const vehicleWithMetrics = getVehicleWithMetrics(vehicle.id)
+    // Handle both old format (boolean) and new format (object)
+    const blockData = blockedStatus[vehicle.id]
+    let blockInfo
+    if (typeof blockData === 'boolean') {
+      // Old format: convert to new format
+      blockInfo = { blocked: blockData, reason: '', timestamp: null }
+    } else if (typeof blockData === 'object' && blockData !== null) {
+      // New format: use as is
+      blockInfo = blockData
+    } else {
+      // No data: default values
+      blockInfo = { blocked: false, reason: '', timestamp: null }
+    }
+
     return {
       ...vehicleWithMetrics,
-      blocked: blockedStatus[vehicle.id] || false,
+      blocked: blockInfo.blocked || false,
+      blockedReason: blockInfo.reason || '',
+      blockedTimestamp: blockInfo.timestamp || null,
       onlineStatus: vehicle.isVehicleOnTrip ? 'online' : 'offline',
     }
   })
@@ -77,15 +97,15 @@ export async function addVehicle(vehicle) {
   })
 }
 
-export async function blockVehicle(vehicleId) {
+export async function blockVehicle(vehicleId, reason = '') {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const vehicle = baseVehicles.find((v) => v.id === vehicleId)
       if (!vehicle) {
         reject(new Error(`Vehicle ID ${vehicleId} not found`))
       } else {
-        saveBlockedStatus(vehicleId, true)
-        resolve({ ...vehicle, blocked: true })
+        saveBlockedStatus(vehicleId, true, reason)
+        resolve({ ...vehicle, blocked: true, blockedReason: reason })
       }
     }, 300)
   })
@@ -98,8 +118,8 @@ export async function unblockVehicle(vehicleId) {
       if (!vehicle) {
         reject(new Error(`Vehicle ID ${vehicleId} not found`))
       } else {
-        saveBlockedStatus(vehicleId, false)
-        resolve({ ...vehicle, blocked: false })
+        saveBlockedStatus(vehicleId, false, '')
+        resolve({ ...vehicle, blocked: false, blockedReason: '' })
       }
     }, 300)
   })

@@ -51,6 +51,7 @@ export function DriverManagementPage() {
   const [driversList, setDriversList] = useState(() => getDrivers())
   const [showOnlineDrivers, setShowOnlineDrivers] = useState(false)
   const [showNewDrivers, setShowNewDrivers] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Popup states
   const [popupOpen, setPopupOpen] = useState(false)
@@ -68,12 +69,6 @@ export function DriverManagementPage() {
     // Refresh from localStorage (new drivers added)
     setDriversList(getDrivers())
   }, [activeTab])
-
-  /**
-   * State to control the visibility of the logoff control panel
-   * When true, the DriverLogoffControl component is displayed below the driver profile
-   */
-  const [showLogoffControls, setShowLogoffControls] = useState(false)
 
   /**
    * State counter to force re-render when logoff state changes
@@ -156,10 +151,17 @@ export function DriverManagementPage() {
   }, [driversList])
 
   /**
-   * Filter drivers based on selected checkboxes
+   * Filter drivers based on selected checkboxes and search query
    */
   const filteredDriversList = useMemo(() => {
     let filtered = [...driversList]
+
+    // Search query filter (by driver name)
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((d) =>
+        d.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
 
     if (showOnlineDrivers) {
       filtered = filtered.filter((d) => d.onlineStatus === 'Online')
@@ -179,7 +181,7 @@ export function DriverManagementPage() {
     }
 
     return filtered
-  }, [driversList, showOnlineDrivers, showNewDrivers])
+  }, [driversList, searchQuery, showOnlineDrivers, showNewDrivers])
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId)
@@ -191,7 +193,6 @@ export function DriverManagementPage() {
 
   const handleDriverSelect = (id) => {
     setSelectedDriverId(id)
-    setShowLogoffControls(false)
     const next = new URLSearchParams(searchParams)
     next.set('tab', 'details')
     if (id) next.set('driverId', id)
@@ -332,12 +333,36 @@ export function DriverManagementPage() {
           title="Driver Management"
           description="Monitor driver details, lists and online/new driver activity."
         >
+          {/* Driver Dropdown (only on details tab) */}
           {activeTab === 'details' && (
             <DriverDropdown
               drivers={driversList}
               selectedDriverId={selectedDriverId}
               onChange={handleDriverSelect}
             />
+          )}
+
+          {/* Search Controls (only on list tab) */}
+          {activeTab === 'list' && (
+            <div className="flex gap-2 items-center justify-end">
+              <input
+                type="text"
+                placeholder="Search by driver name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-64 rounded-lg border-2 border-yellow-400 bg-yellow-50 px-3 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+              />
+              <button
+                onClick={() => {
+                  setSearchQuery('')
+                  setShowOnlineDrivers(false)
+                  setShowNewDrivers(false)
+                }}
+                className="px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors whitespace-nowrap"
+              >
+                Clear All
+              </button>
+            </div>
           )}
         </PageHeader>
 
@@ -360,13 +385,10 @@ export function DriverManagementPage() {
               <DriverProfileSection
                 driver={selectedDriver}
                 currentLogoff={currentLogoff}
-                onToggleLogoffControls={() =>
-                  setShowLogoffControls((prev) => !prev)
-                }
               />
 
-              {/* NEW: Log off control panel */}
-              {currentLogoff && showLogoffControls && (
+              {/* Driver Log off control panel */}
+              {currentLogoff && (
                 <DriverLogoffControl
                   driver={selectedDriver}
                   currentLogoff={currentLogoff}
@@ -420,38 +442,39 @@ export function DriverManagementPage() {
               <h3 className="text-base font-semibold text-slate-900 mb-2">Driver list</h3>
               <p className="text-xs text-slate-600">Overview of all registered drivers.</p>
             </div>
-            <div className="text-xs text-slate-600">
-              Total drivers: <span className="font-semibold">{filteredDriversList.length}</span>
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-slate-600">
+                Showing <span className="font-semibold">{filteredDriversList.length}</span> of <span className="font-semibold">{driversList.length}</span> drivers
+              </div>
+              <button
+                onClick={() => navigate('/drivers/create')}
+                className="rounded-xl bg-brand-yellow px-4 py-2 text-sm font-semibold text-slate-900 hover:opacity-95"
+              >
+                + Create driver
+              </button>
             </div>
           </div>
 
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={showOnlineDrivers}
-                  onChange={(e) => setShowOnlineDrivers(e.target.checked)}
-                  className="rounded border-slate-300 text-brand-yellow focus:ring-brand-yellow"
-                />
-                Online drivers
-              </label>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={showNewDrivers}
-                  onChange={(e) => setShowNewDrivers(e.target.checked)}
-                  className="rounded border-slate-300 text-brand-yellow focus:ring-brand-yellow"
-                />
-                New drivers (joined in last 90 days)
-              </label>
-            </div>
-            <button
-              onClick={() => navigate('/drivers/create')}
-              className="rounded-xl bg-brand-yellow px-4 py-2 text-sm font-semibold text-slate-900 hover:opacity-95"
-            >
-              + Create driver
-            </button>
+          {/* Filter Checkboxes */}
+          <div className="mb-4 flex items-center gap-4">
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={showOnlineDrivers}
+                onChange={(e) => setShowOnlineDrivers(e.target.checked)}
+                className="rounded border-slate-300 text-brand-yellow focus:ring-brand-yellow"
+              />
+              Online drivers
+            </label>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={showNewDrivers}
+                onChange={(e) => setShowNewDrivers(e.target.checked)}
+                className="rounded border-slate-300 text-brand-yellow focus:ring-brand-yellow"
+              />
+              New drivers (joined in last 90 days)
+            </label>
           </div>
 
           <div className="overflow-x-auto">
@@ -470,7 +493,9 @@ export function DriverManagementPage() {
                 {filteredDriversList.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-6 text-center text-sm text-slate-500">
-                      No drivers found.
+                      {searchQuery.trim()
+                        ? `No drivers match your search "${searchQuery}".`
+                        : 'No drivers found.'}
                     </td>
                   </tr>
                 ) : (

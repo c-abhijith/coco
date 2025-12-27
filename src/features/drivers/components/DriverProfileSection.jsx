@@ -10,13 +10,10 @@ import { InfoField } from '../../../shared/components/InfoField'
  * - Vehicle and employment details
  * - Online/offline status (reflects logoff state)
  *
- * Also provides a clickable field to access driver logoff management controls.
- *
  * @param {Object} driver - The driver object with all driver details
  * @param {Object} currentLogoff - Current logoff state { isLoggedOff: boolean, comment: string }
- * @param {Function} onToggleLogoffControls - Callback to show/hide logoff control panel
  */
-export function DriverProfileSection({ driver, currentLogoff, onToggleLogoffControls }) {
+export function DriverProfileSection({ driver, currentLogoff }) {
   if (!driver) return null
 
   return (
@@ -88,23 +85,10 @@ export function DriverProfileSection({ driver, currentLogoff, onToggleLogoffCont
           value={driver.lastActiveTime}
         />
 
-        {/*
-          Clickable field to access driver logoff management
-          Clicking this field will toggle the DriverLogoffControl panel below
-          where admin can log off the driver with a reason or undo a previous logoff
-        */}
-        <div
-          className="cursor-pointer"
-          onClick={onToggleLogoffControls}
-        >
-          <InfoField
-            label="When went online today"
-            value={driver.whenWentOnlineToday}
-          />
-          <div className="mt-1 text-[10px] text-amber-700">
-            Click to manage driver log off
-          </div>
-        </div>
+        <InfoField
+          label="When went online today"
+          value={driver.whenWentOnlineToday}
+        />
       </div>
     </div>
   )
