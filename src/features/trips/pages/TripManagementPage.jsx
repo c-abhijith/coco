@@ -7,6 +7,16 @@ import { TabNavigation } from '../../../shared/components/TabNavigation'
 import { TripDropdown } from '../../../shared/components/TripDropdown'
 import { TripListTable } from '../components/TripListTable'
 import { TripDetails } from '../components/TripDetails'
+import { TripMetrics } from '../components/TripMetrics'
+import { TripComplaints } from '../components/TripComplaints'
+import { TripComplaintsList } from '../components/TripComplaintsList'
+import { SidePopup } from '../../../shared/components/SidePopup'
+import {
+  getTotalTripsDetails,
+  getCompletedTripsDetails,
+  getCancelledTripsDetails,
+  getOngoingTripsDetails,
+} from '../utils/tripMetricDetails'
 
 const TRIP_TABS = [
   { id: 'details', label: 'Trip details' },
@@ -24,6 +34,10 @@ export function TripManagementPage() {
   const [paymentFilter, setPaymentFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
 
+  // Popup states
+  const [popupOpen, setPopupOpen] = useState(false)
+  const [popupData, setPopupData] = useState({ title: '', items: [] })
+
   useEffect(() => {
     const tab = searchParams.get('tab')
     const tripId = searchParams.get('tripId')
@@ -31,6 +45,9 @@ export function TripManagementPage() {
     if (tripId) setSelectedTripId(tripId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Check if userId exists in query params
+  const userIdFromParams = searchParams.get('userId')
 
   // All trips enriched with driver data
   const allTrips = useMemo(() => {
@@ -58,6 +75,12 @@ export function TripManagementPage() {
     if (!selectedTrip) return null
     return drivers.find((d) => String(d.id) === String(selectedTrip.driverId)) || null
   }, [selectedTrip])
+
+  // Trips filtered by userId (if userId is in query params)
+  const tripsForUser = useMemo(() => {
+    if (!userIdFromParams) return allTrips
+    return allTrips.filter((t) => String(t.driverId) === String(userIdFromParams))
+  }, [allTrips, userIdFromParams])
 
   // Filtered trips for list view
   const filteredTrips = useMemo(() => {
@@ -142,6 +165,84 @@ export function TripManagementPage() {
     setSearchParams(next, { replace: true })
   }
 
+  const handleMetricClick = (metricKey) => {
+    let title = ''
+    let items = []
+
+    // Use the trips that are currently being displayed in metrics
+    const tripsToUse = selectedTrip ? [selectedTrip] : (userIdFromParams ? tripsForUser : allTrips)
+
+    switch (metricKey) {
+      case 'totalTrips':
+        title = 'Total Trips'
+        items = getTotalTripsDetails(tripsToUse)
+        break
+      case 'completedTrips':
+        title = 'Completed Trips'
+        items = getCompletedTripsDetails(tripsToUse)
+        break
+      case 'cancelledTrips':
+        title = 'Cancelled Trips'
+        items = getCancelledTripsDetails(tripsToUse)
+        break
+      case 'ongoingTrips':
+        title = 'Ongoing Trips'
+        items = getOngoingTripsDetails(tripsToUse)
+        break
+      default:
+        return
+    }
+
+    setPopupData({ title, items })
+    setPopupOpen(true)
+  }
+
+  const renderTripItem = (item, index) => {
+    return (
+      <div className="p-4 border-2 border-yellow-400 bg-yellow-50 rounded-xl hover:shadow-lg transition-all">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <div className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">
+              Trip ID
+            </div>
+            <div className="text-base font-bold text-slate-900">
+              {item.tripId || '-'}
+            </div>
+            <div className="text-sm text-slate-700 mt-1">
+              {item.riderName || '-'}
+            </div>
+            <div className="text-xs text-slate-500 mt-1">
+              Driver: {item.driverName || '-'}
+            </div>
+            <div className="text-xs text-slate-500">
+              Status: {item.status || '-'}
+            </div>
+            {item.fare !== undefined && (
+              <div className="text-xs text-slate-500">
+                Fare: ₹{item.fare}
+              </div>
+            )}
+            {item.cancelReason && (
+              <div className="text-xs text-red-600 mt-1">
+                Reason: {item.cancelReason}
+              </div>
+            )}
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleTripClick({ id: item.tripId })
+              setPopupOpen(false)
+            }}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+          >
+            View
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header + tabs */}
@@ -150,8 +251,8 @@ export function TripManagementPage() {
           title="Trip Management"
           description="Monitor trip details, lists and filter by driver, status and payment type."
         >
-          {/* Trip Dropdown (only on details tab) */}
-          {activeTab === 'details' && (
+          {/* Trip Dropdown (only on details tab when no userId in params) */}
+          {activeTab === 'details' && !userIdFromParams && (
             <TripDropdown
               trips={allTrips}
               selectedTripId={selectedTripId}
@@ -194,19 +295,25 @@ export function TripManagementPage() {
       {/* TAB: Trip details */}
       {activeTab === 'details' && (
         <>
-          {selectedTrip ? (
-            <TripDetails
-              driver={selectedTripDriver}
-              trip={selectedTrip}
-              trips={allTrips}
-              onSelectTrip={handleTripSelect}
-            />
-          ) : (
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-              <p className="text-sm text-slate-600">
-                Please select a trip from the dropdown above to view its details.
-              </p>
-            </section>
+          {/* Always show metrics - changes based on selected trip */}
+          <TripMetrics
+            trips={selectedTrip ? [selectedTrip] : (userIdFromParams ? tripsForUser : allTrips)}
+            onMetricClick={handleMetricClick}
+          />
+
+          {/* Show trip details if a trip is selected */}
+          {selectedTrip && (
+            <>
+              <TripDetails
+                driver={selectedTripDriver}
+                trip={selectedTrip}
+                trips={tripsForUser}
+                onSelectTrip={handleTripSelect}
+              />
+
+              {/* Show complaints section for selected trip */}
+              <TripComplaints trip={selectedTrip} />
+            </>
           )}
         </>
       )}
@@ -284,6 +391,16 @@ export function TripManagementPage() {
           <TripListTable trips={filteredTrips} onTripClick={handleTripClick} />
         </div>
       )}
+
+      {/* Side Popup for Metric Details */}
+      <SidePopup
+        isOpen={popupOpen}
+        onClose={() => setPopupOpen(false)}
+        title={popupData.title}
+        data={popupData.items}
+        renderItem={renderTripItem}
+        emptyMessage="No trips available for this metric"
+      />
     </div>
   )
 }

@@ -13,6 +13,7 @@ import { TripManagementPage } from '../features/trips/pages/TripManagementPage'
 import { TripDetailsPage } from '../features/trips/pages/TripDetailsPage'
 import VehicleManagementPage from '../features/vehicles/pages/VehicleManagementPage'
 import { CreateVehiclePage } from '../features/vehicles/pages/CreateVehiclePage'
+import { ComplaintManagementPage } from '../features/complaints/pages/ComplaintManagementPage'
 
 /**
  * ProtectedRoute Component
@@ -120,6 +121,16 @@ function App() {
         element={
           <ProtectedRoute>
             <CreateVehiclePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Complaint Management */}
+      <Route
+        path="/complaints"
+        element={
+          <ProtectedRoute>
+            <ComplaintManagementPage />
           </ProtectedRoute>
         }
       />

@@ -79,9 +79,19 @@ export const trips = [
     driverSettledAmount: 220,
     driverSettledWhen: '2025-01-10T10:00:00',
 
+    // Amount breakdown
+    amountBreakdown: {
+      tripAmount: 250,
+      driverGet: 185,
+      adminGet: 30,
+      vehicleOwnerGet: 35,
+      tax: 12,
+    },
+
     // Complaints
     riderComplaintLink: null,
     driverComplaintLink: null,
+    complaintIds: ['C001'],
 
     // Status
     riderStatus: 'Completed',
@@ -141,6 +151,18 @@ export const trips = [
 
     driverReceivedAmount: 220,
     cocoReceivedAmount: 0,
+
+    // Amount breakdown
+    amountBreakdown: {
+      tripAmount: 220,
+      driverGet: 180,
+      adminGet: 0,
+      vehicleOwnerGet: 40,
+      tax: 0,
+    },
+
+    // Complaints
+    complaintIds: [],
 
     riderStatus: 'Completed',
     driverStatus: 'Completed',
@@ -212,6 +234,18 @@ export const trips = [
     driverSettledAmount: 155,
     driverSettledWhen: '2025-01-13T09:00:00',
 
+    // Amount breakdown
+    amountBreakdown: {
+      tripAmount: 180,
+      driverGet: 130,
+      adminGet: 25,
+      vehicleOwnerGet: 25,
+      tax: 9,
+    },
+
+    // Complaints
+    complaintIds: ['C002', 'C003'],
+
     riderStatus: 'Completed',
     driverStatus: 'Completed',
     vehicleStatus: 'Active',
@@ -273,6 +307,18 @@ export const trips = [
     driverReceivedAmount: 10,
     cocoReceivedAmount: 10,
 
+    // Amount breakdown (cancelled trip)
+    amountBreakdown: {
+      tripAmount: 20,
+      driverGet: 10,
+      adminGet: 10,
+      vehicleOwnerGet: 0,
+      tax: 0,
+    },
+
+    // Complaints
+    complaintIds: ['C004'],
+
     riderStatus: 'Cancelled',
     driverStatus: 'Cancelled',
     vehicleStatus: 'Active',
@@ -329,6 +375,18 @@ export const trips = [
 
     driverReceivedAmount: 320,
     cocoReceivedAmount: 0,
+
+    // Amount breakdown
+    amountBreakdown: {
+      tripAmount: 320,
+      driverGet: 265,
+      adminGet: 0,
+      vehicleOwnerGet: 55,
+      tax: 0,
+    },
+
+    // Complaints
+    complaintIds: [],
 
     riderStatus: 'Completed',
     driverStatus: 'Completed',

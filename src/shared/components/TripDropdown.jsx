@@ -29,7 +29,7 @@ export function TripDropdown({
         <option value="">Choose a trip</option>
         {trips.map((t) => (
           <option key={t.id} value={t.id}>
-            {t.id} - {t.riderName || 'Unknown'} ({t.tripStatus || 'N/A'})
+            {t.id} -({t.tripStatus || 'N/A'})
           </option>
         ))}
       </select>
