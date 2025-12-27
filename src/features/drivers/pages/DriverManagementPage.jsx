@@ -8,6 +8,7 @@ import { getVehicleByDriverId } from '../../../shared/data/vehicle'
 import { DriverDropdown } from '../../../shared/components/DriverDropdown'
 import { PageHeader } from '../../../shared/components/PageHeader'
 import { TabNavigation } from '../../../shared/components/TabNavigation'
+import { SidePopup } from '../../../shared/components/SidePopup'
 import { computeGlobalMetrics } from '../utils/driverMetrics'
 import {
   DriverMetricsGrid,
@@ -21,6 +22,21 @@ import { DriverLogoffControl } from '../components/DriverLogoffControl'
 import { VehiclesSection } from '../components/VehiclesSection'
 import { TripsGrid } from '../components/TripsGrid'
 import { DriverListTable } from '../components/DriverListTable'
+import {
+  getTotalDriversDetails,
+  getTotalActiveDriversDetails,
+  getOnlineNowDetails,
+  getIdleOnlineDriversDetails,
+  getDriversWhoDroveTodayDetails,
+  getDriversWithComplaintsDetails,
+  getDriversWithHighCancellationDetails,
+  getOverallAvgRatingDetails,
+  getAvgTripsPerDriverDetails,
+  getAvgAcceptanceRateDetails,
+  getAvgCancellationRateDetails,
+  getAvgComplaintsPer100TripsDetails,
+  getAvgNoShowCountDetails,
+} from '../utils/driverMetricDetails'
 
 const DRIVER_TABS = [
   { id: 'details', label: 'Driver details' },
@@ -35,6 +51,10 @@ export function DriverManagementPage() {
   const [driversList, setDriversList] = useState(() => getDrivers())
   const [showOnlineDrivers, setShowOnlineDrivers] = useState(false)
   const [showNewDrivers, setShowNewDrivers] = useState(false)
+
+  // Popup states
+  const [popupOpen, setPopupOpen] = useState(false)
+  const [popupData, setPopupData] = useState({ title: '', items: [] })
 
   useEffect(() => {
     const tab = searchParams.get('tab')
@@ -209,6 +229,101 @@ export function DriverManagementPage() {
     }
   }
 
+  const handleMetricClick = (metricKey) => {
+    let title = ''
+    let items = []
+
+    switch (metricKey) {
+      case 'totalDrivers':
+        title = 'Total Drivers'
+        items = getTotalDriversDetails(driversList)
+        break
+      case 'totalActiveDrivers':
+        title = 'Total Active Drivers'
+        items = getTotalActiveDriversDetails(driversList)
+        break
+      case 'onlineNow':
+        title = 'Drivers Online Now'
+        items = getOnlineNowDetails(driversList)
+        break
+      case 'idleOnlineDrivers':
+        title = "Drivers on Own Trip"
+        items = getIdleOnlineDriversDetails(driversList)
+        break
+      case 'driversWhoDroveToday':
+        title = 'Drivers Who Drove Today'
+        items = getDriversWhoDroveTodayDetails(driversList)
+        break
+      case 'driversWithComplaints':
+        title = 'Drivers with Complaints'
+        items = getDriversWithComplaintsDetails(driversList)
+        break
+      case 'driversWithHighCancellation':
+        title = 'Drivers with High Cancellation Rate'
+        items = getDriversWithHighCancellationDetails(driversList)
+        break
+      case 'overallAvgRating':
+        title = 'Overall Average Driver Rating'
+        items = getOverallAvgRatingDetails(driversList)
+        break
+      case 'avgTripsPerDriver':
+        title = 'Average Trips per Driver'
+        items = getAvgTripsPerDriverDetails(driversList)
+        break
+      case 'avgAcceptanceRate':
+        title = 'Average Acceptance Rate'
+        items = getAvgAcceptanceRateDetails(driversList)
+        break
+      case 'avgCancellationRate':
+        title = 'Average Cancellation Rate'
+        items = getAvgCancellationRateDetails(driversList)
+        break
+      case 'avgComplaintsPer100Trips':
+        title = 'Avg Complaints per 100 Trips'
+        items = getAvgComplaintsPer100TripsDetails(driversList)
+        break
+      case 'avgNoShowCount':
+        title = 'Average No-show Count'
+        items = getAvgNoShowCountDetails(driversList)
+        break
+      default:
+        return
+    }
+
+    setPopupData({ title, items })
+    setPopupOpen(true)
+  }
+
+  const renderDriverItem = (item, index) => {
+    return (
+      <div className="p-4 border-2 border-yellow-400 bg-yellow-50 rounded-xl hover:shadow-lg transition-all">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <div className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">
+              Driver ID
+            </div>
+            <div className="text-base font-bold text-slate-900">
+              {item.driverId || '-'}
+            </div>
+            <div className="text-sm text-slate-700 mt-1">
+              {item.name || '-'}
+            </div>
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleDriverClick(item.driverId)
+              setPopupOpen(false)
+            }}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+          >
+            View
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header + tabs */}
@@ -237,7 +352,7 @@ export function DriverManagementPage() {
       {activeTab === 'details' && (
         <>
           {/* Global / Driver metrics row */}
-          <DriverMetricsGrid metrics={metrics} />
+          <DriverMetricsGrid metrics={metrics} onMetricClick={handleMetricClick} />
 
           {/* Selected driver profile */}
           {selectedDriver && (
@@ -383,6 +498,16 @@ export function DriverManagementPage() {
           </div>
         </div>
       )}
+
+      {/* Side Popup for Metric Details */}
+      <SidePopup
+        isOpen={popupOpen}
+        onClose={() => setPopupOpen(false)}
+        title={popupData.title}
+        data={popupData.items}
+        renderItem={renderDriverItem}
+        emptyMessage="No data available for this metric"
+      />
     </div>
   )
 

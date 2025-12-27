@@ -1,56 +1,75 @@
 import React from 'react'
 import { MetricCard } from '../../../shared/components/MetricCard'
 
-export function DriverMetricsGrid({ metrics, currentLogoff }) {
+export function DriverMetricsGrid({ metrics, currentLogoff, onMetricClick }) {
   if (!metrics) return null
 
   return (
     <section className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
-      <MetricCard label="Total Drivers" value={metrics.totalDrivers} />
+      <MetricCard
+        label="Total Drivers"
+        value={metrics.totalDrivers}
+        onClick={onMetricClick ? () => onMetricClick('totalDrivers') : undefined}
+      />
       <MetricCard
         label="Total Active Drivers"
         value={metrics.totalActiveDrivers}
+        onClick={onMetricClick ? () => onMetricClick('totalActiveDrivers') : undefined}
       />
-      <MetricCard label="Online Now" value={metrics.onlineNow} />
       <MetricCard
-        label="Driver’s own trip"
+        label="Online Now"
+        value={metrics.onlineNow}
+        onClick={onMetricClick ? () => onMetricClick('onlineNow') : undefined}
+      />
+      <MetricCard
+        label="Driver's own trip"
         value={metrics.idleOnlineDrivers}
+        onClick={onMetricClick ? () => onMetricClick('idleOnlineDrivers') : undefined}
       />
       <MetricCard
         label="Drivers Who Drove Today"
         value={metrics.driversWhoDroveToday}
+        onClick={onMetricClick ? () => onMetricClick('driversWhoDroveToday') : undefined}
       />
       <MetricCard
         label="Drivers with Complaints"
         value={metrics.driversWithComplaints}
+        onClick={onMetricClick ? () => onMetricClick('driversWithComplaints') : undefined}
       />
       <MetricCard
         label="Drivers with High Cancellation Rate"
         value={metrics.driversWithHighCancellation}
+        onClick={onMetricClick ? () => onMetricClick('driversWithHighCancellation') : undefined}
       />
       <MetricCard
         label="Overall Average Driver Rating"
         value={metrics.overallAvgRating}
+        onClick={onMetricClick ? () => onMetricClick('overallAvgRating') : undefined}
       />
       <MetricCard
         label="Average Trips per Driver"
         value={metrics.avgTripsPerDriver}
+        onClick={onMetricClick ? () => onMetricClick('avgTripsPerDriver') : undefined}
       />
       <MetricCard
         label="Average Acceptance Rate"
         value={`${metrics.avgAcceptanceRate}%`}
+        onClick={onMetricClick ? () => onMetricClick('avgAcceptanceRate') : undefined}
       />
       <MetricCard
         label="Average Cancellation Rate"
         value={`${metrics.avgCancellationRate}%`}
+        onClick={onMetricClick ? () => onMetricClick('avgCancellationRate') : undefined}
       />
       <MetricCard
         label="Avg Complaints per 100 Trips"
         value={metrics.avgComplaintsPer100Trips}
+        onClick={onMetricClick ? () => onMetricClick('avgComplaintsPer100Trips') : undefined}
       />
       <MetricCard
         label="Average No-show Count"
         value={metrics.avgNoShowCount}
+        onClick={onMetricClick ? () => onMetricClick('avgNoShowCount') : undefined}
       />
     </section>
   )

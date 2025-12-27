@@ -58,7 +58,7 @@ export function computeVehicleMetrics(vehicles) {
       offlineCount++
     }
 
-    // Documents expiring in next 15 days
+    // Documents expiring in next 15 days - count vehicles with at least one expiring doc
     const documentsToCheck = [
       vehicle.insuranceExpiry,
       vehicle.pollutionCertificateExpiry,
@@ -67,14 +67,19 @@ export function computeVehicleMetrics(vehicles) {
       vehicle.permitExpiry,
     ]
 
+    let hasExpiringDoc = false
     documentsToCheck.forEach((docDate) => {
-      if (docDate) {
+      if (docDate && !hasExpiringDoc) {
         const expiryDate = new Date(docDate)
         if (expiryDate >= today && expiryDate <= fifteenDaysFromNow) {
-          docsExpiringCount++
+          hasExpiringDoc = true
         }
       }
     })
+
+    if (hasExpiringDoc) {
+      docsExpiringCount++
+    }
 
     // No trips in last 7 days
     if (vehicle.tripsInLast7Days === 0) {

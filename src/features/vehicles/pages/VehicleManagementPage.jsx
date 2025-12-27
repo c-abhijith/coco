@@ -4,6 +4,7 @@ import { drivers } from '../../../shared/data/driversData'
 import { getVehicles, blockVehicle, unblockVehicle } from '../../../shared/data/vehicle'
 import { PageHeader } from '../../../shared/components/PageHeader'
 import { TabNavigation } from '../../../shared/components/TabNavigation'
+import { SidePopup } from '../../../shared/components/SidePopup'
 import { computeVehicleMetrics } from '../utils/vehicleMetrics'
 import {
   VehicleProfileSection,
@@ -15,6 +16,16 @@ import {
   VehicleDocumentsSection,
   VehicleDriverSection,
 } from '../components/VehicleMetricsGrid'
+import {
+  getTotalVehiclesDetails,
+  getActiveVehiclesDetails,
+  getVehiclesUsedTodayDetails,
+  getVehiclesOnlineDetails,
+  getVehiclesOfflineDetails,
+  getDocumentsExpiringDetails,
+  getNoTripsInLast7DaysDetails,
+  getVehiclesWithoutDriverDetails,
+} from '../utils/vehicleMetricDetails'
 
 /**
  * VehicleManagementPage Component
@@ -39,6 +50,10 @@ export function VehicleManagementPage() {
   const [cabTypeFilter, setCabTypeFilter] = useState('all')
   const [tripStatusFilter, setTripStatusFilter] = useState('all')
   const [blockedFilter, setBlockedFilter] = useState('all')
+
+  // Popup states
+  const [popupOpen, setPopupOpen] = useState(false)
+  const [popupData, setPopupData] = useState({ title: '', items: [] })
 
   useEffect(() => {
     const tab = searchParams.get('tab')
@@ -160,6 +175,81 @@ export function VehicleManagementPage() {
     }
   }
 
+  const handleMetricClick = (metricKey) => {
+    let title = ''
+    let items = []
+
+    switch (metricKey) {
+      case 'totalVehicles':
+        title = 'Total Vehicles'
+        items = getTotalVehiclesDetails(allVehicles)
+        break
+      case 'activeVehicles':
+        title = 'Active Vehicles'
+        items = getActiveVehiclesDetails(allVehicles)
+        break
+      case 'vehiclesUsedToday':
+        title = 'Vehicles Used Today'
+        items = getVehiclesUsedTodayDetails(allVehicles)
+        break
+      case 'vehiclesOnline':
+        title = 'Vehicles Online'
+        items = getVehiclesOnlineDetails(allVehicles)
+        break
+      case 'vehiclesOffline':
+        title = 'Vehicles Offline'
+        items = getVehiclesOfflineDetails(allVehicles)
+        break
+      case 'documentsExpiringIn15Days':
+        title = 'Documents Expiring in 15 Days'
+        items = getDocumentsExpiringDetails(allVehicles)
+        break
+      case 'noTripsInLast7Days':
+        title = 'No Trips in Last 7 Days'
+        items = getNoTripsInLast7DaysDetails(allVehicles)
+        break
+      case 'vehiclesWithoutAssignedDriver':
+        title = 'Vehicles Without Assigned Driver'
+        items = getVehiclesWithoutDriverDetails(allVehicles)
+        break
+      default:
+        return
+    }
+
+    setPopupData({ title, items })
+    setPopupOpen(true)
+  }
+
+  const renderVehicleItem = (item, index) => {
+    return (
+      <div className="p-4 border-2 border-yellow-400 bg-yellow-50 rounded-xl hover:shadow-lg transition-all">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <div className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">
+              Vehicle Number
+            </div>
+            <div className="text-base font-bold text-slate-900">
+              {item.vehicleNumber || '-'}
+            </div>
+            <div className="text-sm text-slate-700 mt-1">
+              {item.vehicleName || item.brand || '-'}
+            </div>
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleVehicleClick(item.vehicleNumber)
+              setPopupOpen(false)
+            }}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+          >
+            View
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const VEHICLE_TABS = [
     { id: 'details', label: 'Vehicle details' },
     { id: 'list', label: 'Vehicle list' },
@@ -233,7 +323,7 @@ export function VehicleManagementPage() {
       {activeTab === 'details' && (
         <>
           {/* Vehicle Metrics Grid */}
-          <VehicleMetricsGrid metrics={metrics} />
+          <VehicleMetricsGrid metrics={metrics} onMetricClick={handleMetricClick} />
           {!selectedVehicle ? (
             <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
               <p className="text-sm text-slate-600">
@@ -600,6 +690,16 @@ export function VehicleManagementPage() {
         </section>
         </>
       )}
+
+      {/* Side Popup for Metric Details */}
+      <SidePopup
+        isOpen={popupOpen}
+        onClose={() => setPopupOpen(false)}
+        title={popupData.title}
+        data={popupData.items}
+        renderItem={renderVehicleItem}
+        emptyMessage="No data available for this metric"
+      />
     </div>
   )
 }

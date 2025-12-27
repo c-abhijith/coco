@@ -7,27 +7,50 @@ import { InfoField } from '../../../shared/components/InfoField'
  *
  * Displays top-level vehicle metrics (global or specific vehicle)
  */
-export function VehicleMetricsGrid({ metrics }) {
+export function VehicleMetricsGrid({ metrics, onMetricClick }) {
   if (!metrics) return null
 
   return (
     <section className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
-      <MetricCard label="Total Vehicles" value={metrics.totalVehicles} />
-      <MetricCard label="Active Vehicles" value={metrics.activeVehicles} />
-      <MetricCard label="Vehicles Used Today" value={metrics.vehiclesUsedToday} />
-      <MetricCard label="Vehicle Online" value={metrics.vehiclesOnline} />
-      <MetricCard label="Vehicle Offline" value={metrics.vehiclesOffline} />
+      <MetricCard
+        label="Total Vehicles"
+        value={metrics.totalVehicles}
+        onClick={onMetricClick ? () => onMetricClick('totalVehicles') : undefined}
+      />
+      <MetricCard
+        label="Active Vehicles"
+        value={metrics.activeVehicles}
+        onClick={onMetricClick ? () => onMetricClick('activeVehicles') : undefined}
+      />
+      <MetricCard
+        label="Vehicles Used Today"
+        value={metrics.vehiclesUsedToday}
+        onClick={onMetricClick ? () => onMetricClick('vehiclesUsedToday') : undefined}
+      />
+      <MetricCard
+        label="Vehicle Online"
+        value={metrics.vehiclesOnline}
+        onClick={onMetricClick ? () => onMetricClick('vehiclesOnline') : undefined}
+      />
+      <MetricCard
+        label="Vehicle Offline"
+        value={metrics.vehiclesOffline}
+        onClick={onMetricClick ? () => onMetricClick('vehiclesOffline') : undefined}
+      />
       <MetricCard
         label="Documents Expiring in 15 Days"
         value={metrics.documentsExpiringIn15Days}
+        onClick={onMetricClick ? () => onMetricClick('documentsExpiringIn15Days') : undefined}
       />
       <MetricCard
         label="No Trips in Last 7 Days"
         value={metrics.noTripsInLast7Days}
+        onClick={onMetricClick ? () => onMetricClick('noTripsInLast7Days') : undefined}
       />
       <MetricCard
         label="Vehicles Without Assigned Driver"
         value={metrics.vehiclesWithoutAssignedDriver}
+        onClick={onMetricClick ? () => onMetricClick('vehiclesWithoutAssignedDriver') : undefined}
       />
     </section>
   )
