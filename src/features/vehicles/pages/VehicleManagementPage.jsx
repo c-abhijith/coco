@@ -290,7 +290,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     statusFilter === 'all'
                       ? 'bg-brand-yellow text-slate-900'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100'
                   }`}
                 >
                   All
@@ -300,7 +300,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     statusFilter === 'online'
                       ? 'bg-green-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
                   }`}
                 >
                   Online
@@ -310,7 +310,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     statusFilter === 'offline'
                       ? 'bg-slate-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
                   }`}
                 >
                   Offline
@@ -327,7 +327,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     cabTypeFilter === 'all'
                       ? 'bg-brand-yellow text-slate-900'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100'
                   }`}
                 >
                   All Types
@@ -337,7 +337,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     cabTypeFilter === 'SEDAN'
                       ? 'bg-blue-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
                   }`}
                 >
                   Sedan
@@ -347,7 +347,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     cabTypeFilter === 'SUV'
                       ? 'bg-blue-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
                   }`}
                 >
                   SUV
@@ -357,7 +357,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     cabTypeFilter === 'HATCHBACK'
                       ? 'bg-blue-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
                   }`}
                 >
                   Hatchback
@@ -374,7 +374,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     tripStatusFilter === 'all'
                       ? 'bg-brand-yellow text-slate-900'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100'
                   }`}
                 >
                   All
@@ -384,7 +384,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     tripStatusFilter === 'on_trip'
                       ? 'bg-blue-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
                   }`}
                 >
                   On Trip
@@ -394,7 +394,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     tripStatusFilter === 'available'
                       ? 'bg-green-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
                   }`}
                 >
                   Available
@@ -411,7 +411,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     blockedFilter === 'all'
                       ? 'bg-brand-yellow text-slate-900'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100'
                   }`}
                 >
                   All
@@ -421,7 +421,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     blockedFilter === 'unblocked'
                       ? 'bg-green-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
                   }`}
                 >
                   Active
@@ -431,7 +431,7 @@ export function VehicleManagementPage() {
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                     blockedFilter === 'blocked'
                       ? 'bg-red-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
                   }`}
                 >
                   Blocked
@@ -439,13 +439,17 @@ export function VehicleManagementPage() {
               </div>
             </div>
 
-            {/* Active Filter Summary */}
+            {/* Active Filter Summary - Colors match filter buttons */}
             {(statusFilter !== 'all' || cabTypeFilter !== 'all' || tripStatusFilter !== 'all' || blockedFilter !== 'all') && (
               <div className="pt-2 border-t border-slate-200">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-medium text-slate-600">Active filters:</span>
                   {statusFilter !== 'all' && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md">
+                    <span className={`px-2 py-1 text-xs rounded-md ${
+                      statusFilter === 'online'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-slate-100 text-slate-800'
+                    }`}>
                       Status: {statusFilter}
                     </span>
                   )}
@@ -455,12 +459,20 @@ export function VehicleManagementPage() {
                     </span>
                   )}
                   {tripStatusFilter !== 'all' && (
-                    <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-md">
+                    <span className={`px-2 py-1 text-xs rounded-md ${
+                      tripStatusFilter === 'on_trip'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
                       Trip: {tripStatusFilter.replace('_', ' ')}
                     </span>
                   )}
                   {blockedFilter !== 'all' && (
-                    <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-md">
+                    <span className={`px-2 py-1 text-xs rounded-md ${
+                      blockedFilter === 'blocked'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
                       {blockedFilter}
                     </span>
                   )}
@@ -520,17 +532,20 @@ export function VehicleManagementPage() {
                       <td className="px-4 py-3 text-slate-700">{vehicle.driverName || 'None'}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          {/* Online/Offline Indicator */}
-                          <div className="flex items-center gap-1">
-                            <div className={`w-2 h-2 rounded-full ${
-                              vehicle.onlineStatus === 'online' ? 'bg-green-500' : 'bg-slate-400'
-                            }`} title={vehicle.onlineStatus === 'online' ? 'Online' : 'Offline'}></div>
-                            <span className="text-xs text-slate-600">
-                              {vehicle.onlineStatus === 'online' ? 'Online' : 'Offline'}
+                          {/* Online/Offline Badge - Match filter button colors */}
+                          {vehicle.onlineStatus === 'online' ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                              Online
                             </span>
-                          </div>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                              <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+                              Offline
+                            </span>
+                          )}
 
-                          {/* Trip Status Indicator */}
+                          {/* Trip Status Badge */}
                           {vehicle.isVehicleOnTrip && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -540,13 +555,20 @@ export function VehicleManagementPage() {
                             </span>
                           )}
 
-                          {/* Blocked Indicator */}
-                          {vehicle.blocked && (
+                          {/* Active/Blocked Status Badge */}
+                          {vehicle.blocked ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700 border border-red-200">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clipRule="evenodd"/>
                               </svg>
                               Blocked
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                              </svg>
+                              Active
                             </span>
                           )}
                         </div>

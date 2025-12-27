@@ -6,22 +6,34 @@ export const trips = [
     driverId: 'D1001',
     riderId: 'R1001',
     vehicleId: 'V001',
+
     createdTime: '2025-01-10T09:15:00',
     tripStatus: 'Completed',
+    tripRequestedAt: '2025-01-10T09:15:00',
+
     paymentType: 'ONLINE',
     totalFare: 250,
+    estimatedFare: 240,
+    finalFare: 250,
+    driverCollectedAmount: 0,
+
     distanceKm: 12.4,
+    estimatedKm: 12.0,
 
     // Location info
     pickLocationAddress: 'MG Road, Kochi',
     pickLocationMap: gmap('MG Road, Kochi'),
     dropLocationAddress: 'Infopark Phase 1, Kakkanad',
+    pickedLocation: 'MG Road, Kochi',
+    droppedLocation: 'Infopark Phase 1, Kakkanad',
 
     // Trip timing
     tripAcceptedTime: '2025-01-10T09:16:30',
     driverArrivalTime: '2025-01-10T09:23:00',
     pickTime: '2025-01-10T09:25:00',
     tripStopTime: '2025-01-10T09:45:00',
+    driverAssignedTime: '2025-01-10T09:16:30',
+    paymentCompletedTime: '2025-01-10T09:46:00',
 
     // OTP & trip type
     otp: '4321',
@@ -30,25 +42,78 @@ export const trips = [
     tripType: 'Instant',
     scheduleStatus: null,
     scheduleTime: null,
+    scheduledTrip: false,
+    multiStop: false,
+
+    // Razorpay
+    riderRazorpayTxnId: 'RP_TXN_10001',
+    riderRazorpayStatus: 'SUCCESS',
+    razorpayTxnAmount: 250,
+
+    // Fees
+    riderPickupFee: 0,
+    riderWaitingFee: 0,
+
+    // Cancellation
+    didCancelTrip: false,
+    cancelReason: null,
+    cancelTime: null,
+    riderCancellationFee: 0,
+    driverCancellationFee: 0,
+    riderNoShow: false,
+
+    // Driver activity
+    noOfDriversInterested: 3,
+    noOfDriversReassigned: 0,
 
     // Rating & misc
     ratingGivenByRider: 5,
+    ratingGivenByDriver: 5,
     isCarrierRequested: false,
+
+    // Settlement
+    driverReceivedAmount: 220,
+    cocoReceivedAmount: 30,
+    gstAmount: 12,
+    driverSettled: true,
+    driverSettledAmount: 220,
+    driverSettledWhen: '2025-01-10T10:00:00',
+
+    // Complaints
+    riderComplaintLink: null,
+    driverComplaintLink: null,
+
+    // Status
+    riderStatus: 'Completed',
+    driverStatus: 'Completed',
+    vehicleStatus: 'Active',
   },
+
   {
     id: 'T10002',
     driverId: 'D1001',
     riderId: 'R1002',
     vehicleId: 'V001',
+
     createdTime: '2025-01-11T18:40:00',
     tripStatus: 'Completed',
+    tripRequestedAt: '2025-01-11T18:40:00',
+
     paymentType: 'CASH',
     totalFare: 220,
+    estimatedFare: 210,
+    finalFare: 220,
+    driverCollectedAmount: 220,
+
     distanceKm: 10.1,
+    estimatedKm: 10.0,
 
     pickLocationAddress: 'Vytilla Mobility Hub, Kochi',
     pickLocationMap: gmap('Vytilla Mobility Hub, Kochi'),
     dropLocationAddress: 'Lulu Mall, Edappally',
+
+    pickedLocation: 'Vytilla Mobility Hub, Kochi',
+    droppedLocation: 'Lulu Mall, Edappally',
 
     tripAcceptedTime: '2025-01-11T18:41:10',
     driverArrivalTime: '2025-01-11T18:49:00',
@@ -61,68 +126,212 @@ export const trips = [
     tripType: 'Instant',
     scheduleStatus: null,
     scheduleTime: null,
+    scheduledTrip: false,
+    multiStop: false,
+
+    riderPickupFee: 0,
+    riderWaitingFee: 5,
+
+    didCancelTrip: false,
+    riderNoShow: false,
 
     ratingGivenByRider: 4,
+    ratingGivenByDriver: 5,
     isCarrierRequested: false,
+
+    driverReceivedAmount: 220,
+    cocoReceivedAmount: 0,
+
+    riderStatus: 'Completed',
+    driverStatus: 'Completed',
+    vehicleStatus: 'Active',
   },
   {
-    id: 'T20001',
+    id: 'T10003',
     driverId: 'D1002',
-    riderId: 'R1003',
+    riderId: 'R1004',
     vehicleId: 'V002',
-    createdTime: '2025-01-12T21:10:00',
+
+    createdTime: '2025-01-13T08:10:00',
+    tripRequestedAt: '2025-01-13T08:10:00',
     tripStatus: 'Completed',
+
     paymentType: 'ONLINE',
-    totalFare: 300,
-    distanceKm: 15.2,
+    totalFare: 180,
+    estimatedFare: 170,
+    finalFare: 180,
+    driverCollectedAmount: 0,
 
-    pickLocationAddress: 'Edappally, Kochi',
-    pickLocationMap: gmap('Edappally, Kochi'),
-    dropLocationAddress: 'Fort Kochi, Kochi',
+    distanceKm: 8.6,
+    estimatedKm: 8.3,
 
-    tripAcceptedTime: '2025-01-12T21:11:30',
-    driverArrivalTime: '2025-01-12T21:20:00',
-    pickTime: '2025-01-12T21:22:00',
-    tripStopTime: '2025-01-12T21:45:00',
+    pickLocationAddress: 'Kaloor, Kochi',
+    pickLocationMap: gmap('Kaloor, Kochi'),
+    dropLocationAddress: 'Marine Drive, Kochi',
 
-    otp: '9090',
-    tripStartOtp: '9090',
+    pickedLocation: 'Kaloor, Kochi',
+    droppedLocation: 'Marine Drive, Kochi',
+
+    tripAcceptedTime: '2025-01-13T08:11:00',
+    driverArrivalTime: '2025-01-13T08:18:00',
+    pickTime: '2025-01-13T08:19:30',
+    tripStopTime: '2025-01-13T08:35:00',
+
+    otp: '3344',
+    tripStartOtp: '3344',
     tripEndOtp: null,
+
     tripType: 'Instant',
+    scheduledTrip: false,
     scheduleStatus: null,
     scheduleTime: null,
+    multiStop: false,
+
+    riderRazorpayTxnId: 'RP_TXN_10003',
+    riderRazorpayStatus: 'SUCCESS',
+    razorpayTxnAmount: 180,
+
+    riderPickupFee: 0,
+    riderWaitingFee: 0,
+
+    didCancelTrip: false,
+    riderNoShow: false,
+
+    noOfDriversInterested: 2,
+    noOfDriversReassigned: 0,
 
     ratingGivenByRider: 5,
+    ratingGivenByDriver: 5,
     isCarrierRequested: false,
+
+    driverReceivedAmount: 155,
+    cocoReceivedAmount: 25,
+    gstAmount: 9,
+
+    driverSettled: true,
+    driverSettledAmount: 155,
+    driverSettledWhen: '2025-01-13T09:00:00',
+
+    riderStatus: 'Completed',
+    driverStatus: 'Completed',
+    vehicleStatus: 'Active',
   },
+
   {
-    id: 'T30001',
+    id: 'T10004',
     driverId: 'D1003',
-    riderId: 'R1002',
+    riderId: 'R1005',
     vehicleId: 'V003',
-    createdTime: '2025-01-09T07:30:00',
-    tripStatus: 'Completed',
+
+    createdTime: '2025-01-14T19:20:00',
+    tripRequestedAt: '2025-01-14T19:20:00',
+    tripStatus: 'Cancelled',
+
     paymentType: 'ONLINE',
-    totalFare: 410,
-    distanceKm: 20.6,
+    totalFare: 0,
+    estimatedFare: 260,
+    finalFare: 0,
+    driverCollectedAmount: 0,
 
-    pickLocationAddress: 'Tripunithura, Kochi',
-    pickLocationMap: gmap('Tripunithura, Kochi'),
-    dropLocationAddress: 'Infopark Phase 1, Kakkanad',
+    distanceKm: 0,
+    estimatedKm: 14.2,
 
-    tripAcceptedTime: '2025-01-09T07:31:20',
-    driverArrivalTime: '2025-01-09T07:40:00',
-    pickTime: '2025-01-09T07:42:00',
-    tripStopTime: '2025-01-09T08:05:00',
+    pickLocationAddress: 'Aluva Metro Station',
+    pickLocationMap: gmap('Aluva Metro Station'),
+    dropLocationAddress: 'Infopark Phase 2, Kakkanad',
 
-    otp: '7777',
-    tripStartOtp: '7777',
+    pickedLocation: 'Aluva Metro Station',
+    droppedLocation: 'Infopark Phase 2, Kakkanad',
+
+    tripAcceptedTime: '2025-01-14T19:22:00',
+    driverArrivalTime: null,
+    pickTime: null,
+    tripStopTime: null,
+
+    otp: '5566',
+    tripStartOtp: null,
     tripEndOtp: null,
-    tripType: 'Instant',
-    scheduleStatus: null,
-    scheduleTime: null,
 
-    ratingGivenByRider: 5,
-    isCarrierRequested: true,
+    tripType: 'Instant',
+    scheduledTrip: false,
+    multiStop: false,
+
+    didCancelTrip: true,
+    cancelReason: 'Rider cancelled before pickup',
+    cancelTime: '2025-01-14T19:25:00',
+    riderCancellationFee: 20,
+    driverCancellationFee: 10,
+    riderNoShow: false,
+
+    noOfDriversInterested: 4,
+    noOfDriversReassigned: 1,
+
+    ratingGivenByRider: null,
+    ratingGivenByDriver: null,
+    isCarrierRequested: false,
+
+    driverReceivedAmount: 10,
+    cocoReceivedAmount: 10,
+
+    riderStatus: 'Cancelled',
+    driverStatus: 'Cancelled',
+    vehicleStatus: 'Active',
   },
+
+  {
+    id: 'T10005',
+    driverId: 'D1001',
+    riderId: 'R1006',
+    vehicleId: 'V001',
+
+    createdTime: '2025-01-15T06:45:00',
+    tripRequestedAt: '2025-01-15T06:45:00',
+    tripStatus: 'Completed',
+
+    paymentType: 'CASH',
+    totalFare: 320,
+    estimatedFare: 300,
+    finalFare: 320,
+    driverCollectedAmount: 320,
+
+    distanceKm: 18.9,
+    estimatedKm: 18.0,
+
+    pickLocationAddress: 'Palarivattom, Kochi',
+    pickLocationMap: gmap('Palarivattom, Kochi'),
+    dropLocationAddress: 'Cochin Airport (CIAL)',
+
+    pickedLocation: 'Palarivattom, Kochi',
+    droppedLocation: 'Cochin Airport (CIAL)',
+
+    tripAcceptedTime: '2025-01-15T06:46:00',
+    driverArrivalTime: '2025-01-15T06:55:00',
+    pickTime: '2025-01-15T06:57:00',
+    tripStopTime: '2025-01-15T07:20:00',
+
+    otp: '8899',
+    tripStartOtp: '8899',
+    tripEndOtp: null,
+
+    tripType: 'Instant',
+    scheduledTrip: false,
+    multiStop: false,
+
+    riderPickupFee: 0,
+    riderWaitingFee: 10,
+
+    didCancelTrip: false,
+    riderNoShow: false,
+
+    ratingGivenByRider: 4,
+    ratingGivenByDriver: 5,
+    isCarrierRequested: true,
+
+    driverReceivedAmount: 320,
+    cocoReceivedAmount: 0,
+
+    riderStatus: 'Completed',
+    driverStatus: 'Completed',
+    vehicleStatus: 'Active',
+  }
 ]

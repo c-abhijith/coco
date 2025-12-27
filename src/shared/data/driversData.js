@@ -1,4 +1,4 @@
-// Drivers - Core data only (no aggregates, no duplicate vehicle info)
+// Drivers - Normalized core data only (aggregate metrics calculated from trips)
 
 export const drivers = [
   {
@@ -36,21 +36,6 @@ export const drivers = [
     whenWentOnlineToday: '2025-01-15T07:45:00',
     onlineHoursToday: 2.5,
 
-    // Performance metrics (not calculable from trips alone)
-    isIdleOnline: false,
-    driverUtilizationPct: 78,
-    acceptanceRatePct: 94,
-    cancellationRatePct: 6,
-    noShowCount: 0,
-    tripsPerOnlineHour: 1.2,
-
-    // Complaints & ratings
-    complaintsCount: 1,
-    complaintsPer100Trips: 2.5,
-    lastTripRating: 4.9,
-    lastTripRating7Days: 4.8,
-    lastTripRating30Days: 4.7,
-
     // Compliance / KYC
     aadhaarNumber: 'XXXX-XXXX-1234',
     aadhaarLink: 'https://aadhaar.example.com/rahul',
@@ -76,9 +61,6 @@ export const drivers = [
 
     // Misc
     remark: 'Reliable for corporate morning trips.',
-
-    // Trip references
-    tripIds: ['T10001', 'T10002'],
   },
 
   {
@@ -111,19 +93,6 @@ export const drivers = [
     whenWentOnlineToday: null,
     onlineHoursToday: 0,
 
-    isIdleOnline: false,
-    driverUtilizationPct: 65,
-    acceptanceRatePct: 88,
-    cancellationRatePct: 10,
-    noShowCount: 1,
-    tripsPerOnlineHour: 0.9,
-
-    complaintsCount: 2,
-    complaintsPer100Trips: 4.1,
-    lastTripRating: 4.6,
-    lastTripRating7Days: 4.5,
-    lastTripRating30Days: 4.4,
-
     aadhaarNumber: 'XXXX-XXXX-5678',
     aadhaarLink: '',
     panNumber: 'PQRSX5678Z',
@@ -145,8 +114,6 @@ export const drivers = [
     loginOtp: '****',
 
     remark: 'Needs follow-up on police verification.',
-
-    tripIds: ['T20001'],
   },
 
   {
@@ -179,19 +146,6 @@ export const drivers = [
     whenWentOnlineToday: '2025-01-15T06:30:00',
     onlineHoursToday: 3.2,
 
-    isIdleOnline: true,
-    driverUtilizationPct: 72,
-    acceptanceRatePct: 97,
-    cancellationRatePct: 3,
-    noShowCount: 0,
-    tripsPerOnlineHour: 1.1,
-
-    complaintsCount: 0,
-    complaintsPer100Trips: 0,
-    lastTripRating: 5.0,
-    lastTripRating7Days: 4.9,
-    lastTripRating30Days: 4.9,
-
     aadhaarNumber: 'XXXX-XXXX-9012',
     aadhaarLink: '',
     panNumber: 'LMNOP9012Q',
@@ -213,9 +167,8 @@ export const drivers = [
     loginOtp: '****',
 
     remark: 'Top-rated SUV driver.',
-
-    tripIds: ['T30001'],
   },
+
   {
     id: 'D1004',
     name: 'ABHIJITH CHANDRANPILLAI',
@@ -246,19 +199,6 @@ export const drivers = [
     whenWentOnlineToday: '',
     onlineHoursToday: 0,
 
-    isIdleOnline: false,
-    driverUtilizationPct: 0,
-    acceptanceRatePct: 0,
-    cancellationRatePct: 0,
-    noShowCount: 0,
-    tripsPerOnlineHour: 0,
-
-    complaintsCount: 0,
-    complaintsPer100Trips: 0,
-    lastTripRating: 0,
-    lastTripRating7Days: 0,
-    lastTripRating30Days: 0,
-
     aadhaarNumber: '',
     aadhaarLink: '',
     panNumber: '',
@@ -280,7 +220,5 @@ export const drivers = [
     loginOtp: '****',
 
     remark: 'afjdsjhfkljasdklfj',
-
-    tripIds: [],
   },
 ]
