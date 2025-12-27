@@ -1,21 +1,40 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { drivers } from '../../../shared/data/driversData'
 import { trips as tripsData } from '../../../shared/data/tripsData'
+import { PageHeader } from '../../../shared/components/PageHeader'
+import { TabNavigation } from '../../../shared/components/TabNavigation'
+import { TripDropdown } from '../../../shared/components/TripDropdown'
+import { TripListTable } from '../components/TripListTable'
+import { TripDetails } from '../components/TripDetails'
+
+const TRIP_TABS = [
+  { id: 'details', label: 'Trip details' },
+  { id: 'list', label: 'Trip list' },
+]
 
 export function TripManagementPage() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
 
-  const initialDriverId = searchParams.get('driverId') || 'all'
-
-  const [driverFilter, setDriverFilter] = useState(initialDriverId)
+  const [activeTab, setActiveTab] = useState('details')
+  const [selectedTripId, setSelectedTripId] = useState(null)
+  const [driverFilter, setDriverFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [paymentFilter, setPaymentFilter] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const trips = useMemo(() => {
-    // ✅ MAIN FIX: use tripsData (not driver.trips)
-    let list = (tripsData || []).map((trip) => {
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    const tripId = searchParams.get('tripId')
+    if (tab) setActiveTab(tab)
+    if (tripId) setSelectedTripId(tripId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // All trips enriched with driver data
+  const allTrips = useMemo(() => {
+    return (tripsData || []).map((trip) => {
       const driver = drivers.find((d) => String(d.id) === String(trip.driverId)) || {}
 
       return {
@@ -25,7 +44,34 @@ export function TripManagementPage() {
         cabType: trip.cabType ?? driver.cabType,
         vehicleNumber: trip.vehicleNumber ?? driver.vehicleNumber,
       }
-    })
+    }).sort((a, b) => (b.createdTime || '').localeCompare(a.createdTime || ''))
+  }, [])
+
+  // Selected trip for details view
+  const selectedTrip = useMemo(
+    () => allTrips.find((t) => t.id === selectedTripId) || null,
+    [allTrips, selectedTripId]
+  )
+
+  // Driver for selected trip
+  const selectedTripDriver = useMemo(() => {
+    if (!selectedTrip) return null
+    return drivers.find((d) => String(d.id) === String(selectedTrip.driverId)) || null
+  }, [selectedTrip])
+
+  // Filtered trips for list view
+  const filteredTrips = useMemo(() => {
+    let list = [...allTrips]
+
+    // Search query filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      list = list.filter((t) =>
+        t.id?.toLowerCase().includes(query) ||
+        t.driverName?.toLowerCase().includes(query) ||
+        t.riderName?.toLowerCase().includes(query)
+      )
+    }
 
     if (driverFilter !== 'all') {
       list = list.filter((t) => String(t.driverId) === String(driverFilter))
@@ -43,8 +89,8 @@ export function TripManagementPage() {
       )
     }
 
-    return list.sort((a, b) => (b.createdTime || '').localeCompare(a.createdTime || ''))
-  }, [driverFilter, statusFilter, paymentFilter])
+    return list
+  }, [allTrips, searchQuery, driverFilter, statusFilter, paymentFilter])
 
   const distinctStatuses = useMemo(() => {
     return Array.from(
@@ -71,26 +117,115 @@ export function TripManagementPage() {
       .filter(Boolean)
   }, [])
 
-  const openTripDetails = (trip) => {
-    // keep your existing route style
-    navigate(`/trip-details?userId=${encodeURIComponent(trip.driverId)}&tripId=${encodeURIComponent(trip.id)}`)
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId)
+    const next = new URLSearchParams(searchParams)
+    next.set('tab', tabId)
+    if (selectedTripId) next.set('tripId', selectedTripId)
+    setSearchParams(next, { replace: true })
+  }
+
+  const handleTripSelect = (id) => {
+    setSelectedTripId(id)
+    const next = new URLSearchParams(searchParams)
+    next.set('tab', 'details')
+    if (id) next.set('tripId', id)
+    setSearchParams(next, { replace: true })
+  }
+
+  const handleTripClick = (trip) => {
+    setSelectedTripId(trip.id)
+    setActiveTab('details')
+    const next = new URLSearchParams(searchParams)
+    next.set('tab', 'details')
+    next.set('tripId', trip.id)
+    setSearchParams(next, { replace: true })
   }
 
   return (
     <div className="space-y-6">
+      {/* Header + tabs */}
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">
-              Trip Management
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              View and filter all trips across drivers with driver, status and
-              payment filters.
-            </p>
+        <PageHeader
+          title="Trip Management"
+          description="Monitor trip details, lists and filter by driver, status and payment type."
+        >
+          {/* Trip Dropdown (only on details tab) */}
+          {activeTab === 'details' && (
+            <TripDropdown
+              trips={allTrips}
+              selectedTripId={selectedTripId}
+              onChange={handleTripSelect}
+            />
+          )}
+
+          {/* Search Controls (only on list tab) */}
+          {activeTab === 'list' && (
+            <div className="flex gap-2 items-center justify-end">
+              <input
+                type="text"
+                placeholder="Search by trip ID, driver, or rider..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-64 rounded-lg border-2 border-yellow-400 bg-yellow-50 px-3 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+              />
+              <button
+                onClick={() => {
+                  setSearchQuery('')
+                  setDriverFilter('all')
+                  setStatusFilter('all')
+                  setPaymentFilter('all')
+                }}
+                className="px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors whitespace-nowrap"
+              >
+                Clear All
+              </button>
+            </div>
+          )}
+        </PageHeader>
+
+        <TabNavigation
+          tabs={TRIP_TABS}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
+      </section>
+
+      {/* TAB: Trip details */}
+      {activeTab === 'details' && (
+        <>
+          {selectedTrip ? (
+            <TripDetails
+              driver={selectedTripDriver}
+              trip={selectedTrip}
+              trips={allTrips}
+              onSelectTrip={handleTripSelect}
+            />
+          ) : (
+            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+              <p className="text-sm text-slate-600">
+                Please select a trip from the dropdown above to view its details.
+              </p>
+            </section>
+          )}
+        </>
+      )}
+
+      {/* TAB: Trip list */}
+      {activeTab === 'list' && (
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">Trip list</h3>
+              <p className="text-xs text-slate-600">Overview of all trips across drivers.</p>
+            </div>
+            <div className="text-xs text-slate-600">
+              Showing <span className="font-semibold">{filteredTrips.length}</span> of <span className="font-semibold">{allTrips.length}</span> trips
+            </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          {/* Filter Dropdowns */}
+          <div className="mb-4 flex items-center gap-3">
             <div className="flex-1">
               <label className="block text-xs font-medium text-slate-600 mb-1">
                 Driver
@@ -145,64 +280,10 @@ export function TripManagementPage() {
               </select>
             </div>
           </div>
+
+          <TripListTable trips={filteredTrips} onTripClick={handleTripClick} />
         </div>
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                <th className="px-4 py-3">Trip ID</th>
-                <th className="px-4 py-3">Driver</th>
-                <th className="px-4 py-3">Rider</th>
-                <th className="px-4 py-3">Created time</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Payment</th>
-                <th className="px-4 py-3">Cab / Vehicle</th>
-                <th className="px-4 py-3">Pickup</th>
-                <th className="px-4 py-3">Drop</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {trips.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="px-4 py-6 text-center text-sm text-slate-500">
-                    No trips found for the selected filters.
-                  </td>
-                </tr>
-              ) : (
-                trips.map((trip) => (
-                  <tr
-                    key={trip.id}
-                    className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer"
-                    onClick={() => openTripDetails(trip)}
-                    title="Click to open trip details"
-                  >
-                    <td className="px-4 py-3 text-slate-700">{trip.id || '-'}</td>
-                    <td className="px-4 py-3 text-slate-700">{trip.driverName || '-'}</td>
-                    <td className="px-4 py-3 text-slate-700">{trip.riderName || '-'}</td>
-                    <td className="px-4 py-3 text-slate-700">{trip.createdTime || '-'}</td>
-                    <td className="px-4 py-3 text-slate-700">{trip.tripStatus || '-'}</td>
-                    <td className="px-4 py-3 text-slate-700">{trip.paymentType || '-'}</td>
-                    <td className="px-4 py-3 text-slate-700">
-                      {trip.cabType || '-'} / {trip.vehicleNumber || '-'}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 max-w-xs truncate">
-                      {trip.pickLocationAddress || '-'}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700 max-w-xs truncate">
-                      {trip.dropLocationAddress || '-'}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-
-          </table>
-        </div>
-      </section>
+      )}
     </div>
   )
 }
