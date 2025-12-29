@@ -1,7 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 export function TripsGrid({ driver, trips, onViewTrip, onNavigateToTrips }) {
+  const [showAllTrips, setShowAllTrips] = useState(false)
+
   if (!driver || !trips || trips.length === 0) return null
+
+  const INITIAL_DISPLAY_COUNT = 6
+  const displayedTrips = showAllTrips ? trips : trips.slice(0, INITIAL_DISPLAY_COUNT)
+  const hasMoreTrips = trips.length > INITIAL_DISPLAY_COUNT
 
   return (
     <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
@@ -11,25 +17,23 @@ export function TripsGrid({ driver, trips, onViewTrip, onNavigateToTrips }) {
             Trips for {driver.name}
           </h3>
           <p className="text-xs text-slate-500">
-            {trips.length} trip{trips.length > 1 ? 's' : ''}
+            {showAllTrips ? `Showing all ${trips.length}` : `Showing ${Math.min(INITIAL_DISPLAY_COUNT, trips.length)} of ${trips.length}`} trip{trips.length > 1 ? 's' : ''}
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() =>
-            onNavigateToTrips(
-              `/trips?driverId=${encodeURIComponent(driver.id)}`,
-            )
-          }
-          className="inline-flex items-center rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-        >
-          See all
-        </button>
+        {hasMoreTrips && (
+          <button
+            type="button"
+            onClick={() => setShowAllTrips(!showAllTrips)}
+            className="inline-flex items-center rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+          >
+            {showAllTrips ? 'Show less' : 'See all'}
+          </button>
+        )}
       </div>
 
       <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-        {trips
+        {displayedTrips
           .slice()
           .sort((a, b) =>
             (b.createdTime || '').localeCompare(a.createdTime || ''),
