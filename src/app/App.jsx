@@ -14,6 +14,8 @@ import { TripDetailsPage } from '../features/trips/pages/TripDetailsPage'
 import VehicleManagementPage from '../features/vehicles/pages/VehicleManagementPage'
 import { CreateVehiclePage } from '../features/vehicles/pages/CreateVehiclePage'
 import { ComplaintManagementPage } from '../features/complaints/pages/ComplaintManagementPage'
+import { UserManagementPage } from '../features/users/pages/UserManagementPage'
+import { CreateUserPage } from '../features/users/pages/CreateUserPage'
 
 /**
  * ProtectedRoute Component
@@ -69,12 +71,20 @@ function App() {
         }
       />
 
-      {/* Optional: keep old /users path pointing to same page */}
+      {/* User Management */}
       <Route
         path="/users"
         element={
           <ProtectedRoute>
-            <DriverManagementPage />
+            <UserManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/users/create"
+        element={
+          <ProtectedRoute>
+            <CreateUserPage />
           </ProtectedRoute>
         }
       />

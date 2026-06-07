@@ -1,10 +1,14 @@
 // src/pages/DriverManagementPage.jsx
 import React, { useMemo, useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { getDrivers } from '../../../shared/data/driver'
+import {
+  getDrivers as fetchDriversList,
+  getDriverMetrics,
+  getDriverLastTrips,
+  getDriverVehicleDetails,
+} from '../../../api/driverApi'
+import { mapApiDriver } from '../../../api/driverMapper'
 import { getDriverLogoffState, setDriverLogoffState } from '../../../shared/data/driverLogoff'
-import { getTripsByDriverId } from '../../../shared/data/driverTrips'
-import { getVehicleByDriverId } from '../../../shared/data/vehicle'
 import { DriverDropdown } from '../../../shared/components/DriverDropdown'
 import { PageHeader } from '../../../shared/components/PageHeader'
 import { TabNavigation } from '../../../shared/components/TabNavigation'
@@ -48,15 +52,31 @@ export function DriverManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState('details')
   const [selectedDriverId, setSelectedDriverId] = useState(null)
-  const [driversList, setDriversList] = useState(() => getDrivers())
+
+  // ── Driver list state ──────────────────────────────────────
+  const [driversList, setDriversList] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // ── Per-driver detail state ───────────────────────────────
+  const [selectedDriverDetails, setSelectedDriverDetails] = useState(null)
+  const [trips, setTrips] = useState([])
+  const [driverVehicle, setDriverVehicle] = useState(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
+
+  // ── Filter / search state ─────────────────────────────────
   const [showOnlineDrivers, setShowOnlineDrivers] = useState(false)
   const [showNewDrivers, setShowNewDrivers] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Popup states
+  // ── Popup state ───────────────────────────────────────────
   const [popupOpen, setPopupOpen] = useState(false)
   const [popupData, setPopupData] = useState({ title: '', items: [] })
 
+  // ── Logoff counter (forces re-render on logoff change) ────
+  const [logoffUpdateCounter, setLogoffUpdateCounter] = useState(0)
+
+  // ── Read URL params on mount ──────────────────────────────
   useEffect(() => {
     const tab = searchParams.get('tab')
     const driverId = searchParams.get('driverId')
@@ -65,16 +85,39 @@ export function DriverManagementPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // ── Fetch driver list from API ────────────────────────────
   useEffect(() => {
-    // Refresh from localStorage (new drivers added)
-    setDriversList(getDrivers())
-  }, [activeTab])
+    setLoading(true)
+    fetchDriversList()
+      .then((res) => {
+        const mapped = (res.data || []).map(mapApiDriver)
+        setDriversList(mapped)
+      })
+      .catch((err) => {
+        setError(err?.message || 'Failed to load drivers')
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
-  /**
-   * State counter to force re-render when logoff state changes
-   * This ensures that changes to logoff status are immediately reflected in the UI
-   */
-  const [logoffUpdateCounter, setLogoffUpdateCounter] = useState(0)
+  // ── Fetch per-driver data when selection changes ──────────
+  useEffect(() => {
+    if (!selectedDriverId) return
+
+    setDetailsLoading(true)
+    setSelectedDriverDetails(null)
+    setTrips([])
+    setDriverVehicle(null)
+
+    Promise.all([
+      getDriverMetrics(selectedDriverId).catch(() => null),
+      getDriverLastTrips(selectedDriverId).catch(() => ({ data: [] })),
+      getDriverVehicleDetails(selectedDriverId).catch(() => null),
+    ]).then(([metrics, tripsRes, vehicleRes]) => {
+      setSelectedDriverDetails(metrics || null)
+      setTrips(tripsRes?.data || [])
+      setDriverVehicle(vehicleRes || null)
+    }).finally(() => setDetailsLoading(false))
+  }, [selectedDriverId])
 
   const handleViewTrip = (trip) => {
     if (!trip || !selectedDriverId) return
@@ -87,20 +130,18 @@ export function DriverManagementPage() {
 
   const globalMetrics = useMemo(() => computeGlobalMetrics(driversList), [driversList])
 
-  const selectedDriver = useMemo(
-    () => driversList.find((d) => d.id === selectedDriverId) || null,
-    [driversList, selectedDriverId],
-  )
+  // Merge the base driver (from list) with detailed metrics
+  const selectedDriver = useMemo(() => {
+    const base = driversList.find((d) => d.id === selectedDriverId) || null
+    if (!base) return null
+    if (selectedDriverDetails) {
+      return { ...base, ...selectedDriverDetails }
+    }
+    return base
+  }, [driversList, selectedDriverId, selectedDriverDetails])
 
-  /**
-   * Get the current logoff state for the selected driver
-   * This reads from persistent localStorage storage, so the state persists across page refreshes
-   * The logoffUpdateCounter dependency ensures the UI updates when logoff state changes
-   */
   const currentLogoff = useMemo(() => {
     if (!selectedDriver) return null
-
-    // Read the persistent logoff state from localStorage
     return getDriverLogoffState(selectedDriver.id)
   }, [selectedDriver, logoffUpdateCounter])
 
@@ -109,31 +150,13 @@ export function DriverManagementPage() {
     [selectedDriver],
   )
 
-  // If driver selected -> use driverMetrics, else global
   const metrics = selectedDriver ? driverMetrics : globalMetrics
 
-  // Get trips for selected driver using normalized data
-  const trips = useMemo(() => {
-    if (!selectedDriver) return []
-    return getTripsByDriverId(selectedDriver.id)
-  }, [selectedDriver])
-
-  // Get vehicle for selected driver
-  const driverVehicle = useMemo(() => {
-    if (!selectedDriver) return null
-    return getVehicleByDriverId(selectedDriver.id)
-  }, [selectedDriver])
-
-  // Helpers for other tabs
   const onlineDrivers = useMemo(
     () => driversList.filter((d) => d.onlineStatus === 'Online'),
     [driversList],
   )
 
-  /**
-   * Filter drivers who joined within the last 90 days
-   * Uses joiningDate field to determine if driver is "new"
-   */
   const newDrivers = useMemo(() => {
     const today = new Date()
     const ninetyDaysAgo = new Date()
@@ -141,22 +164,15 @@ export function DriverManagementPage() {
 
     return driversList.filter((d) => {
       if (!d.joiningDate) return false
-
       const joiningDate = new Date(d.joiningDate)
-      // Check if joining date is valid and within last 90 days
       if (isNaN(joiningDate.getTime())) return false
-
       return joiningDate >= ninetyDaysAgo && joiningDate <= today
     })
   }, [driversList])
 
-  /**
-   * Filter drivers based on selected checkboxes and search query
-   */
   const filteredDriversList = useMemo(() => {
     let filtered = [...driversList]
 
-    // Search query filter (by driver name)
     if (searchQuery.trim()) {
       filtered = filtered.filter((d) =>
         d.name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -208,22 +224,13 @@ export function DriverManagementPage() {
     setSearchParams(next, { replace: true })
   }
 
-  /**
-   * Handle changes to driver logoff state
-   * Saves the new state to persistent localStorage storage
-   * @param {string} driverId - The driver ID (e.g., "D1001")
-   * @param {Object} newState - Object with { isLoggedOff: boolean, comment: string }
-   */
   const handleLogoffStateChange = (driverId, newState) => {
-    // Save to persistent storage (localStorage)
     const success = setDriverLogoffState(
       driverId,
       newState.isLoggedOff,
       newState.comment || ''
     )
-
     if (success) {
-      // Force UI re-render to reflect the new logoff state
       setLogoffUpdateCounter((prev) => prev + 1)
     } else {
       console.error('Failed to save driver logoff state')
@@ -295,7 +302,7 @@ export function DriverManagementPage() {
     setPopupOpen(true)
   }
 
-  const renderDriverItem = (item, index) => {
+  const renderDriverItem = (item) => {
     return (
       <div className="p-4 border-2 border-yellow-400 bg-yellow-50 rounded-xl hover:shadow-lg transition-all">
         <div className="flex items-center justify-between">
@@ -325,6 +332,23 @@ export function DriverManagementPage() {
     )
   }
 
+  // ── Render ─────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-48 text-sm text-slate-500">
+        Loading drivers...
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-48 text-sm text-red-600">
+        {error}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header + tabs */}
@@ -333,7 +357,6 @@ export function DriverManagementPage() {
           title="Driver Management"
           description="Monitor driver details, lists and online/new driver activity."
         >
-          {/* Driver Dropdown (only on details tab) */}
           {activeTab === 'details' && (
             <DriverDropdown
               drivers={driversList}
@@ -342,7 +365,6 @@ export function DriverManagementPage() {
             />
           )}
 
-          {/* Search Controls (only on list tab) */}
           {activeTab === 'list' && (
             <div className="flex gap-2 items-center justify-end">
               <input
@@ -373,13 +395,15 @@ export function DriverManagementPage() {
         />
       </section>
 
-      {/* TAB: Driver details (current driver management page) */}
+      {/* TAB: Driver details */}
       {activeTab === 'details' && (
         <>
-          {/* Global / Driver metrics row */}
           <DriverMetricsGrid metrics={metrics} onMetricClick={handleMetricClick} />
 
-          {/* Selected driver profile */}
+          {detailsLoading && selectedDriverId && (
+            <div className="text-xs text-slate-500 px-1">Loading driver details...</div>
+          )}
+
           {selectedDriver && (
             <section className="rounded-2xl bg-white border border-slate-200 shadow-sm p-5 space-y-5">
               <DriverProfileSection
@@ -387,7 +411,6 @@ export function DriverManagementPage() {
                 currentLogoff={currentLogoff}
               />
 
-              {/* Driver Log off control panel */}
               {currentLogoff && (
                 <DriverLogoffControl
                   driver={selectedDriver}
@@ -396,25 +419,18 @@ export function DriverManagementPage() {
                 />
               )}
 
-              {/* Ratings + utilisation row */}
               <DriverPerformanceMetrics
                 driver={selectedDriver}
                 currentLogoff={currentLogoff}
               />
 
-              {/* Payout & penalties as metric cards */}
               <DriverPayoutMetrics driver={selectedDriver} />
-
-              {/* Compliance / KYC as metric cards (gap continuous) */}
               <DriverComplianceMetrics driver={selectedDriver} />
-
-              {/* Device / GPS / account + schedule as metric cards (gap continuous) */}
               <DriverDeviceMetrics driver={selectedDriver} />
             </section>
           )}
 
-          {/* Driver's Vehicle */}
-          {selectedDriver && driverVehicle && (
+          {selectedDriver && (
             <VehiclesSection
               driver={selectedDriver}
               vehicle={driverVehicle}
@@ -422,7 +438,6 @@ export function DriverManagementPage() {
             />
           )}
 
-          {/* Trips grid for selected driver */}
           {selectedDriver && trips.length > 0 && (
             <TripsGrid
               driver={selectedDriver}
@@ -485,8 +500,8 @@ export function DriverManagementPage() {
                   <th className="px-4 py-2">Driver ID</th>
                   <th className="px-4 py-2">Mobile</th>
                   <th className="px-4 py-2">City</th>
+                  <th className="px-4 py-2">Joined</th>
                   <th className="px-4 py-2">Status</th>
-                  <th className="px-4 py-2">Online</th>
                 </tr>
               </thead>
               <tbody>
@@ -510,11 +525,19 @@ export function DriverManagementPage() {
                           {d.name || '-'}
                         </button>
                       </td>
-                      <td className="px-4 py-2 text-slate-700">{d.id || '-'}</td>
+                      <td className="px-4 py-2 text-slate-500 text-xs font-mono">{d.id ? d.id.slice(0, 8) + '…' : '-'}</td>
                       <td className="px-4 py-2 text-slate-700">{d.mobile || '-'}</td>
                       <td className="px-4 py-2 text-slate-700">{d.city || '-'}</td>
-                      <td className="px-4 py-2 text-slate-700">{d.status || '-'}</td>
-                      <td className="px-4 py-2 text-slate-700">{d.onlineStatus || '-'}</td>
+                      <td className="px-4 py-2 text-slate-700">{d.joiningDate || '-'}</td>
+                      <td className="px-4 py-2">
+                        <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                          d.onlineStatus === 'Online'
+                            ? 'bg-green-50 text-green-700'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {d.onlineStatus || '-'}
+                        </span>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -535,8 +558,6 @@ export function DriverManagementPage() {
       />
     </div>
   )
-
 }
 
-// So App.jsx can do: import { DriverManagementPage } from './pages/DriverManagementPage'
 export default DriverManagementPage

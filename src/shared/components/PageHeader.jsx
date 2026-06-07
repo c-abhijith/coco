@@ -23,7 +23,7 @@ export function PageHeader({ title, description, children }) {
           <p className="mt-1 text-sm text-slate-600">{description}</p>
         )}
       </div>
-      {children && <div className="w-full md:w-72">{children}</div>}
+      {children && <div className="flex-shrink-0">{children}</div>}
     </div>
   )
 }

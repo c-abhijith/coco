@@ -10,8 +10,10 @@ export function DashboardLayout({ children }) {
   const pathname = location.pathname || '/'
 
   const activePage =
-    pathname.startsWith('/drivers') || pathname.startsWith('/users')
+    pathname.startsWith('/drivers')
       ? 'drivers'
+      : pathname.startsWith('/users')
+      ? 'users'
       : pathname.startsWith('/riders')
       ? 'riders'
       : pathname.startsWith('/trips') || pathname.startsWith('/trip-details')
@@ -27,6 +29,8 @@ export function DashboardLayout({ children }) {
       navigate('/')
     } else if (page === 'drivers') {
       navigate('/drivers')
+    } else if (page === 'users') {
+      navigate('/users')
     } else if (page === 'riders') {
       navigate('/riders')
     } else if (page === 'trips') {

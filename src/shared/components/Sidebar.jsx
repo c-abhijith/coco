@@ -140,6 +140,34 @@ function ComplaintIcon(props) {
   )
 }
 
+function UserManagementIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function LogoutIcon(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
@@ -172,6 +200,7 @@ const menu = [
   { id: 'home', label: 'Home', icon: HomeIcon },
   { id: 'drivers', label: 'Driver Management', icon: DriverIcon },
   { id: 'riders', label: 'Rider Management', icon: RiderIcon },
+  { id: 'users', label: 'User Management', icon: UserManagementIcon },
   { id: 'trips', label: 'Trip Management', icon: TripIcon },
   { id: 'vehicles', label: 'Vehicle Management', icon: VehicleIcon },
   { id: 'complaints', label: 'Complaint Management', icon: ComplaintIcon },

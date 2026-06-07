@@ -20,7 +20,7 @@ export function DriverDropdown({
         <option value="">Choose a driver</option>
         {drivers.map((d) => (
           <option key={d.id} value={d.id}>
-            {d.name} ({d.id})
+            {d.name}
           </option>
         ))}
       </select>
