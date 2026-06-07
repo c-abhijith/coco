@@ -49,6 +49,10 @@ export const ENDPOINTS = {
   // GET  /coco/trips/scheduled-3-days/
   TRIPS_SCHEDULED_3_DAYS: '/coco/trips/scheduled-3-days/',
 
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  // POST /coco/users/login/
+  LOGIN: '/coco/users/login/',
+
   // ── Users ─────────────────────────────────────────────────────────────────
   // GET  /coco/users/
   // POST /coco/users/

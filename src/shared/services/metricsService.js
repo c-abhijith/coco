@@ -1,7 +1,6 @@
 import { trips } from '../data/tripsData'
 import { drivers } from '../data/driversData'
 import { baseVehicles } from '../data/vehicleData'
-import { riderDetails } from '../data/riderDetails'
 
 /**
  * Metrics Service
@@ -158,62 +157,6 @@ export function getAllVehiclesWithMetrics() {
 }
 
 // ============================================================================
-// RIDER METRICS
-// ============================================================================
-
-/**
- * Calculate all metrics for a rider
- */
-export function getRiderMetrics(riderId) {
-  const riderTrips = trips.filter(t => t.riderId === riderId)
-
-  const totalTrips = riderTrips.length
-  const completedTrips = riderTrips.filter(t => t.tripStatus === 'Completed').length
-  const cancelledTrips = totalTrips - completedTrips
-  const totalSpend = riderTrips.reduce((sum, t) => sum + (t.totalFare || 0), 0)
-
-  const avgRating = riderTrips.length > 0
-    ? riderTrips.reduce((sum, t) => sum + (t.ratingGivenByRider || 0), 0) / riderTrips.filter(t => t.ratingGivenByRider).length
-    : 0
-
-  const lastTrip = riderTrips.sort((a, b) =>
-    new Date(b.createdTime) - new Date(a.createdTime)
-  )[0]
-
-  return {
-    totalTrips,
-    completedTrips,
-    cancelledTrips,
-    totalSpend,
-    rating: avgRating,
-    lastTripAt: lastTrip?.createdTime || null,
-    lastPickup: lastTrip?.pickLocationAddress || null,
-    lastDrop: lastTrip?.dropLocationAddress || null,
-  }
-}
-
-/**
- * Get rider with calculated metrics
- */
-export function getRiderWithMetrics(riderId) {
-  const rider = riderDetails.find(r => r.id === riderId)
-  if (!rider) return null
-
-  const metrics = getRiderMetrics(riderId)
-  return {
-    ...rider,
-    ...metrics,
-  }
-}
-
-/**
- * Get all riders with metrics
- */
-export function getAllRidersWithMetrics() {
-  return riderDetails.map(rider => getRiderWithMetrics(rider.id))
-}
-
-// ============================================================================
 // TRIP ENRICHMENT
 // ============================================================================
 
@@ -225,17 +168,15 @@ export function getTripWithDetails(tripId) {
   if (!trip) return null
 
   const driver = drivers.find(d => d.id === trip.driverId)
-  const rider = riderDetails.find(r => r.id === trip.riderId)
   const vehicle = baseVehicles.find(v => v.id === trip.vehicleId)
 
   return {
     ...trip,
-    // Add related entity info for display
     assignedDriver: driver?.name || null,
     driverMobile: driver?.mobile || null,
-    riderName: rider?.name || null,
-    riderMobile: rider?.mobile || null,
-    riderEmail: rider?.email || null,
+    riderName: null,
+    riderMobile: null,
+    riderEmail: null,
     cabType: vehicle?.cabType || null,
     vehicleNumber: vehicle?.vehicleNumber || null,
   }
