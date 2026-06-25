@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import * as XLSX from 'xlsx'
 
 const PAGE_SIZE = 10
@@ -49,6 +50,7 @@ function SortTh({ label, sort, onSort, className = '' }) {
 }
 
 export function RiderTripDetails({ trips, loading }) {
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [sort, setSort] = useState({ col: 'Created', dir: 'desc' })
   const [statusFilter, setStatusFilter]   = useState('all')
@@ -278,7 +280,15 @@ export function RiderTripDetails({ trips, loading }) {
               <tbody className="divide-y divide-slate-100">
                 {paginated.map((t) => (
                   <tr key={t.TripID} className="hover:bg-slate-50 transition">
-                    <td className="py-2.5 pr-4 font-mono text-[10px] text-slate-500 whitespace-nowrap">{t.TripID?.slice(0, 8)}…</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">
+                      <button
+                        onClick={() => navigate(`/trips?tripId=${t.TripID}&tab=details`)}
+                        className="font-mono text-[10px] text-yellow-700 hover:text-yellow-900 hover:underline transition"
+                        title={t.TripID}
+                      >
+                        {t.TripID?.slice(0, 8)}…
+                      </button>
+                    </td>
                     <td className="py-2.5 pr-4 whitespace-nowrap">{formatDate(t.TripCreationTime)}</td>
                     <td className="py-2.5 pr-4 whitespace-nowrap">{formatDate(t.TripScheduleTime)}</td>
                     <td className="py-2.5 pr-4 whitespace-nowrap">

@@ -16,6 +16,7 @@ import { CreateVehiclePage } from '../features/vehicles/pages/CreateVehiclePage'
 import { ComplaintManagementPage } from '../features/complaints/pages/ComplaintManagementPage'
 import { UserManagementPage } from '../features/users/pages/UserManagementPage'
 import { CreateUserPage } from '../features/users/pages/CreateUserPage'
+import { SettlementManagementPage } from '../features/settlement/pages/SettlementManagementPage'
 
 /**
  * ProtectedRoute Component
@@ -141,6 +142,16 @@ function App() {
         element={
           <ProtectedRoute>
             <ComplaintManagementPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Settlement Management */}
+      <Route
+        path="/settlement"
+        element={
+          <ProtectedRoute>
+            <SettlementManagementPage />
           </ProtectedRoute>
         }
       />

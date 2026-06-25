@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import * as XLSX from 'xlsx'
 
 const PAGE_SIZE = 10
@@ -43,6 +44,7 @@ function SortTh({ label, sort, onSort }) {
 }
 
 export function RiderPendingAmount({ data, loading }) {
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState('all')
   const [sort, setSort] = useState({ col: null, dir: 'asc' })
@@ -175,7 +177,15 @@ export function RiderPendingAmount({ data, loading }) {
               <tbody className="divide-y divide-slate-100">
                 {paginated.map((row, idx) => (
                   <tr key={row.TripId ?? idx} className="hover:bg-slate-50 transition">
-                    <td className="py-2.5 pr-4 font-mono text-[10px] text-slate-500 whitespace-nowrap">{row.TripId?.slice(0, 8)}…</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">
+                      <button
+                        onClick={() => navigate(`/trips?tripId=${row.TripId}&tab=details`)}
+                        className="font-mono text-[10px] text-yellow-700 hover:text-yellow-900 hover:underline transition"
+                        title={row.TripId}
+                      >
+                        {row.TripId?.slice(0, 8)}…
+                      </button>
+                    </td>
                     <td className="py-2.5 pr-4 whitespace-nowrap">{row.StatusDescription ?? '-'}</td>
                     <td className="py-2.5 pr-4 whitespace-nowrap">{row.Comments ?? '-'}</td>
                     <td className="py-2.5 pr-4 whitespace-nowrap font-semibold text-slate-800">{fmt(row.Amount)}</td>

@@ -49,6 +49,15 @@ export const ENDPOINTS = {
   // GET  /coco/trips/scheduled-3-days/
   TRIPS_SCHEDULED_3_DAYS: '/coco/trips/scheduled-3-days/',
 
+  // GET  /coco/trips/<trip_id>
+  TRIP_DETAIL: (tripId) => `/coco/trips/${tripId}`,
+
+  // GET  /coco/trips/<trip_id>/driver-queue/
+  TRIP_DRIVER_QUEUE: (tripId) => `/coco/trips/${tripId}/driver-queue/`,
+
+  // GET  /coco/trips/<trip_id>/location-sync/
+  TRIP_LOCATION_SYNC: (tripId) => `/coco/trips/${tripId}/location-sync/`,
+
   // ── Auth ──────────────────────────────────────────────────────────────────
   // POST /coco/users/login/
   LOGIN: '/coco/users/login/',

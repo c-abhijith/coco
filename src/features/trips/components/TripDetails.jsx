@@ -1,107 +1,151 @@
-import React, { useMemo } from 'react'
+import React from 'react'
+import { DropLocationsMap } from './DropLocationsMap'
 
-function safe(v, fallback = '—') {
-  if (v === null || v === undefined || v === '') return fallback
-  return v
-}
-
-function formatINR(value) {
-  const n = Number(value)
-  if (!Number.isFinite(n)) return '₹0'
-  return n.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
-}
-
-function formatKm(value) {
-  const n = Number(value)
-  if (!Number.isFinite(n)) return '0 km'
-  return `${n.toLocaleString('en-IN')} km`
-}
-
-function Field({ label, value }) {
+function Field({ label, value, badge, badgeClass }) {
   return (
-    <div className="py-2">
-      <div className="text-xs font-semibold text-slate-500 uppercase tracking-[0.18em]">{label}</div>
-      <div className="mt-1 text-sm font-medium text-slate-900">{safe(value)}</div>
+    <div>
+      <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{label}</div>
+      {badge ? (
+        <span className={`inline-block mt-1 px-3 py-1 text-xs font-semibold rounded-lg border ${badgeClass}`}>
+          {value ?? '-'}
+        </span>
+      ) : (
+        <div className="text-sm text-slate-900 mt-0.5">{value ?? '-'}</div>
+      )}
     </div>
   )
 }
 
-// ✅ Named export (so you can import { TripDetails })
-export function TripDetails({ driver, trip, trips = [], onSelectTrip }) {
-  const selectedTripId = trip?.id || ''
+const formatDate = (val) => {
+  if (!val) return '-'
+  return new Date(val).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+}
 
-  const canSelect = useMemo(() => Array.isArray(trips) && trips.length > 0, [trips])
+const fmt = (val) => {
+  const n = Number(val)
+  if (!Number.isFinite(n)) return '-'
+  return `₹${n.toFixed(2)}`
+}
 
-  if (!trip) {
+const statusColor = (status) => {
+  const s = (status || '').toLowerCase()
+  if (s.includes('complet')) return 'bg-green-50 text-green-700 border-green-200'
+  if (s.includes('cancel'))  return 'bg-red-50 text-red-700 border-red-200'
+  if (s.includes('progress') || s.includes('ongoing')) return 'bg-blue-50 text-blue-700 border-blue-200'
+  return 'bg-slate-50 text-slate-600 border-slate-200'
+}
+
+export function TripDetails({ trip, loading }) {
+  if (loading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 text-sm text-slate-600">
-        Trip not found.
-      </div>
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-8">
+        <div className="text-center text-slate-500 text-sm">Loading trip details…</div>
+      </section>
     )
   }
 
+  if (!trip) {
+    return (
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-8">
+        <div className="text-center text-slate-500">
+          <p className="text-sm">No trip selected</p>
+          <p className="text-xs mt-1">Click a Trip ID from Rider Management to view details</p>
+        </div>
+      </section>
+    )
+  }
+
+  const fields = [
+    // Rider (top — most important)
+    { label: 'Rider Name',           value: trip.RiderName },
+    { label: 'Rider Status',         value: trip.RiderStatus },
+    { label: 'Rider Rating',         value: trip.RiderRating },
+    { label: 'Rider No Show',        value: trip.RiderNoShow },
+
+    // Driver
+    { label: 'Driver Name',          value: trip.DriverName },
+    { label: 'Driver Status',        value: trip.DriverStatus },
+    { label: 'Driver Rating',        value: trip.DriverRating },
+    { label: 'Vehicle No.',          value: trip.VehicleNumber },
+
+    // Trip overview
+    { label: 'Trip ID',              value: trip.TripID },
+    { label: 'Status',               value: trip.StatusDescription, badge: true, badgeClass: statusColor(trip.StatusDescription) },
+    { label: 'Cab Requested',        value: trip.CabTypeRequested },
+    { label: 'Cab Arrived',          value: trip.CabTypeArrived },
+
+    // Route
+    { label: 'Pickup Location',      value: trip.PickLocationGMapFullAddress },
+    { label: 'Pickup Hub',           value: trip.PickupHub },
+    { label: 'Drop Hub',             value: trip.DropHub },
+    { label: 'Multi Drop',           value: trip.IsMultiDrop },
+
+    // Timing
+    { label: 'Created',              value: formatDate(trip.TripCreationTime) },
+    { label: 'Accepted',             value: formatDate(trip.TripAcceptedTime) },
+    { label: 'Pickup Time',          value: formatDate(trip.PickupTime) },
+    { label: 'Dropped Time',         value: formatDate(trip.DropedTime) },
+
+    { label: 'Scheduled Trip',       value: trip.ScheduledTrip },
+    { label: 'Scheduled Time',       value: formatDate(trip.TripScheduleTime) },
+    { label: 'Expected Distance',    value: trip.ExpectedTripDistance != null ? `${trip.ExpectedTripDistance} km` : '-' },
+    { label: 'Actual Distance',      value: trip.TotalKM != null ? `${trip.TotalKM} km` : '-' },
+
+    // Financials
+    { label: 'Payment Type',         value: trip.PaymentType },
+    { label: 'Est. Fare',            value: fmt(trip.EstimatedTripFare) },
+    { label: 'Total Trip Fare',      value: fmt(trip.TotalTripFare) },
+    { label: 'Collected',            value: fmt(trip.DriverCollectedPrice) },
+
+    { label: 'Driver Received',      value: fmt(trip.DriverReceived) },
+    { label: 'Coco Received',        value: fmt(trip.CocoReceived) },
+    { label: 'GST',                  value: fmt(trip.GST) },
+    { label: 'Rider Advance',        value: fmt(trip.RiderTripAdvance) },
+
+    { label: 'Refund Amount',        value: fmt(trip.RiderRefundAmount) },
+    { label: 'Amount Settled',       value: trip.TripAmountSettled },
+    { label: 'Vehicle Status',       value: trip.VehicleStatus },
+    { label: 'Carrier Requested',    value: trip.IsCarrierRequested },
+
+    // OTP & Cancellation
+    { label: 'Start OTP',            value: trip.TripStartOTP },
+    { label: 'End OTP',              value: trip.TripEndOTP },
+    { label: 'Cancelled',            value: trip.CancelledTrip },
+    { label: 'Cancellation Reason',  value: trip.CancellationReason },
+
+    { label: 'Cancellation Time',    value: formatDate(trip.CancellationTime) },
+    { label: 'Cancellation Fee',     value: fmt(trip.CancellationFee) },
+  ]
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 space-y-4">
-      {/* Top row (trip selector + tiny meta) */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <div className="text-sm font-semibold text-slate-900">{trip.id}</div>
-          <div className="text-xs text-slate-500">{safe(trip.createdTime)}</div>
-        </div>
+    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+      <h3 className="text-sm font-semibold text-slate-900 mb-4">Trip Details</h3>
 
-        {canSelect && (
-          <div className="flex items-center gap-2">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-[0.18em]">
-              Choose Trip
-            </div>
-            <select
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
-              value={selectedTripId}
-              onChange={(e) => onSelectTrip?.(e.target.value)}
-            >
-              {trips.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.id}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-5">
+        {fields.map((f) => (
+          <Field key={f.label} {...f} />
+        ))}
       </div>
 
-      {/* Details layout similar to your old UI */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* LEFT column */}
-        <div className="rounded-2xl border border-slate-100 p-4">
-          <div className="text-sm font-semibold text-slate-900 mb-2">Trip info</div>
-          <div className="divide-y divide-slate-100">
-            <Field label="Trip Status" value={trip.tripStatus} />
-            <Field label="Payment Type" value={trip.paymentType} />
-            <Field label="Total Fare" value={formatINR(trip.totalFare)} />
-            <Field label="Distance" value={formatKm(trip.distanceKm)} />
-            <Field label="OTP" value={trip.otp} />
-            <Field label="Rating Given By Rider" value={trip.ratingGivenByRider} />
-          </div>
-        </div>
-
-        {/* RIGHT column */}
-        <div className="rounded-2xl border border-slate-100 p-4">
-          <div className="text-sm font-semibold text-slate-900 mb-2">Driver / Rider / Route</div>
-          <div className="divide-y divide-slate-100">
-            <Field label="Driver" value={driver ? `${driver.name} (${driver.id})` : '—'} />
-            <Field label="Cab Type" value={trip.cabType} />
-            <Field label="Vehicle Number" value={trip.vehicleNumber} />
-
-            <Field label="Pickup Location" value={trip.pickLocationAddress} />
-            <Field label="Drop Location" value={trip.dropLocationAddress} />
-
-            <Field label="Rider Name" value={trip.riderName} />
-            <Field label="Rider Mobile" value={trip.riderMobile} />
-            <Field label="Rider Email" value={trip.riderEmail} />
-          </div>
-        </div>
-      </div>
-    </div>
+      <DropLocationsMap
+        dropDetailsJSON={trip.DropDetailsJSON}
+        dropLocationsRaw={trip.DropLocations}
+        pickupAddress={trip.PickLocationGMapFullAddress}
+        tripId={trip.TripID}
+        tripInfo={{
+          pickupTime:           trip.PickupTime,
+          dropedTime:           trip.DropedTime,
+          totalKM:              trip.TotalKM,
+          estimatedTripFare:    trip.EstimatedTripFare,
+          totalTripFare:        trip.TotalTripFare,
+          driverCollectedPrice: trip.DriverCollectedPrice,
+          driverReceived:       trip.DriverReceived,
+          cocoReceived:         trip.CocoReceived,
+          riderPickupFee:       trip.RiderPickupFee,
+          riderAwaittingFee:    trip.RiderAwaittingFee,
+        }}
+      />
+    </section>
   )
 }
 

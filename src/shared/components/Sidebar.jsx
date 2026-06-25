@@ -168,6 +168,20 @@ function UserManagementIcon(props) {
   )
 }
 
+function SettlementIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function LogoutIcon(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
@@ -204,6 +218,7 @@ const menu = [
   { id: 'trips', label: 'Trip Management', icon: TripIcon },
   { id: 'vehicles', label: 'Vehicle Management', icon: VehicleIcon },
   { id: 'complaints', label: 'Complaint Management', icon: ComplaintIcon },
+  { id: 'settlement', label: 'Settlement Management', icon: SettlementIcon },
 ]
 
 export function Sidebar({ activePage, onChangePage }) {

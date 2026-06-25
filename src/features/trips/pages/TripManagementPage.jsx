@@ -1,406 +1,160 @@
-import React, { useMemo, useState, useEffect } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
-import { drivers } from '../../../shared/data/driversData'
-import { trips as tripsData } from '../../../shared/data/tripsData'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { getTripDetail, getTripDriverQueue } from '../../../api/tripApi'
 import { PageHeader } from '../../../shared/components/PageHeader'
-import { TabNavigation } from '../../../shared/components/TabNavigation'
-import { TripDropdown } from '../../../shared/components/TripDropdown'
-import { TripListTable } from '../components/TripListTable'
 import { TripDetails } from '../components/TripDetails'
-import { TripMetrics } from '../components/TripMetrics'
-import { TripComplaints } from '../components/TripComplaints'
-import { TripComplaintsList } from '../components/TripComplaintsList'
-import { SidePopup } from '../../../shared/components/SidePopup'
-import {
-  getTotalTripsDetails,
-  getCompletedTripsDetails,
-  getCancelledTripsDetails,
-  getOngoingTripsDetails,
-} from '../utils/tripMetricDetails'
 
-const TRIP_TABS = [
-  { id: 'details', label: 'Trip details' },
-  { id: 'list', label: 'Trip list' },
-]
+const formatDate = (val) => {
+  if (!val) return '-'
+  return new Date(val).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+}
 
 export function TripManagementPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
-  const [activeTab, setActiveTab] = useState('details')
   const [selectedTripId, setSelectedTripId] = useState(null)
-  const [driverFilter, setDriverFilter] = useState('all')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [paymentFilter, setPaymentFilter] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [tripData, setTripData]             = useState(null)
+  const [tripLoading, setTripLoading]       = useState(false)
+  const [tripError, setTripError]           = useState(null)
 
-  // Popup states
-  const [popupOpen, setPopupOpen] = useState(false)
-  const [popupData, setPopupData] = useState({ title: '', items: [] })
+  const [queueData, setQueueData]           = useState(null)
+  const [queueLoading, setQueueLoading]     = useState(false)
+  const [queueError, setQueueError]         = useState(null)
+  const [showQueue, setShowQueue]           = useState(false)
 
+  // Read tripId from URL on mount
   useEffect(() => {
-    const tab = searchParams.get('tab')
     const tripId = searchParams.get('tripId')
-    if (tab) setActiveTab(tab)
     if (tripId) setSelectedTripId(tripId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Check if userId exists in query params
-  const userIdFromParams = searchParams.get('userId')
+  // Fetch trip detail whenever selectedTripId changes
+  useEffect(() => {
+    if (!selectedTripId) { setTripData(null); return }
+    setTripLoading(true)
+    setTripError(null)
+    setQueueData(null)
+    setShowQueue(false)
+    getTripDetail(selectedTripId)
+      .then((res) => setTripData(res?.data?.[0] ?? null))
+      .catch((err) => { setTripError(err?.message || 'Failed to load trip'); setTripData(null) })
+      .finally(() => setTripLoading(false))
+  }, [selectedTripId])
 
-  // All trips enriched with driver data
-  const allTrips = useMemo(() => {
-    return (tripsData || []).map((trip) => {
-      const driver = drivers.find((d) => String(d.id) === String(trip.driverId)) || {}
+  const handleToggleQueue = async () => {
+    if (showQueue) { setShowQueue(false); return }
 
-      return {
-        ...trip,
-        driverId: trip.driverId ?? driver.id,
-        driverName: driver.name ?? trip.assignedDriver ?? '-',
-        cabType: trip.cabType ?? driver.cabType,
-        vehicleNumber: trip.vehicleNumber ?? driver.vehicleNumber,
-      }
-    }).sort((a, b) => (b.createdTime || '').localeCompare(a.createdTime || ''))
-  }, [])
+    setShowQueue(true)
+    if (queueData) return  // already loaded
 
-  // Selected trip for details view
-  const selectedTrip = useMemo(
-    () => allTrips.find((t) => t.id === selectedTripId) || null,
-    [allTrips, selectedTripId]
-  )
-
-  // Driver for selected trip
-  const selectedTripDriver = useMemo(() => {
-    if (!selectedTrip) return null
-    return drivers.find((d) => String(d.id) === String(selectedTrip.driverId)) || null
-  }, [selectedTrip])
-
-  // Trips filtered by userId (if userId is in query params)
-  const tripsForUser = useMemo(() => {
-    if (!userIdFromParams) return allTrips
-    return allTrips.filter((t) => String(t.driverId) === String(userIdFromParams))
-  }, [allTrips, userIdFromParams])
-
-  // Filtered trips for list view
-  const filteredTrips = useMemo(() => {
-    let list = [...allTrips]
-
-    // Search query filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      list = list.filter((t) =>
-        t.id?.toLowerCase().includes(query) ||
-        t.driverName?.toLowerCase().includes(query) ||
-        t.riderName?.toLowerCase().includes(query)
-      )
+    setQueueLoading(true)
+    setQueueError(null)
+    try {
+      const res = await getTripDriverQueue(selectedTripId)
+      setQueueData(res?.data ?? [])
+    } catch (err) {
+      setQueueError(err?.message || 'Failed to load driver queue')
+      setQueueData([])
+    } finally {
+      setQueueLoading(false)
     }
-
-    if (driverFilter !== 'all') {
-      list = list.filter((t) => String(t.driverId) === String(driverFilter))
-    }
-
-    if (statusFilter !== 'all') {
-      list = list.filter(
-        (t) => (t.tripStatus || '').toLowerCase() === statusFilter.toLowerCase(),
-      )
-    }
-
-    if (paymentFilter !== 'all') {
-      list = list.filter(
-        (t) => (t.paymentType || '').toLowerCase() === paymentFilter.toLowerCase(),
-      )
-    }
-
-    return list
-  }, [allTrips, searchQuery, driverFilter, statusFilter, paymentFilter])
-
-  const distinctStatuses = useMemo(() => {
-    return Array.from(
-      new Set((tripsData || []).map((t) => (t.tripStatus || '').trim()).filter(Boolean)),
-    )
-  }, [])
-
-  const distinctPayments = useMemo(() => {
-    return Array.from(
-      new Set((tripsData || []).map((t) => (t.paymentType || '').trim()).filter(Boolean)),
-    )
-  }, [])
-
-  const distinctDrivers = useMemo(() => {
-    const driverIdsInTrips = Array.from(
-      new Set((tripsData || []).map((t) => String(t.driverId)).filter(Boolean)),
-    )
-
-    return driverIdsInTrips
-      .map((id) => {
-        const d = drivers.find((x) => String(x.id) === String(id))
-        return d ? { id: d.id, name: d.name } : { id, name: id }
-      })
-      .filter(Boolean)
-  }, [])
-
-  const handleTabChange = (tabId) => {
-    setActiveTab(tabId)
-    const next = new URLSearchParams(searchParams)
-    next.set('tab', tabId)
-    if (selectedTripId) next.set('tripId', selectedTripId)
-    setSearchParams(next, { replace: true })
-  }
-
-  const handleTripSelect = (id) => {
-    setSelectedTripId(id)
-    const next = new URLSearchParams(searchParams)
-    next.set('tab', 'details')
-    if (id) next.set('tripId', id)
-    setSearchParams(next, { replace: true })
-  }
-
-  const handleTripClick = (trip) => {
-    setSelectedTripId(trip.id)
-    setActiveTab('details')
-    const next = new URLSearchParams(searchParams)
-    next.set('tab', 'details')
-    next.set('tripId', trip.id)
-    setSearchParams(next, { replace: true })
-  }
-
-  const handleMetricClick = (metricKey) => {
-    let title = ''
-    let items = []
-
-    // Use the trips that are currently being displayed in metrics
-    const tripsToUse = selectedTrip ? [selectedTrip] : (userIdFromParams ? tripsForUser : allTrips)
-
-    switch (metricKey) {
-      case 'totalTrips':
-        title = 'Total Trips'
-        items = getTotalTripsDetails(tripsToUse)
-        break
-      case 'completedTrips':
-        title = 'Completed Trips'
-        items = getCompletedTripsDetails(tripsToUse)
-        break
-      case 'cancelledTrips':
-        title = 'Cancelled Trips'
-        items = getCancelledTripsDetails(tripsToUse)
-        break
-      case 'ongoingTrips':
-        title = 'Ongoing Trips'
-        items = getOngoingTripsDetails(tripsToUse)
-        break
-      default:
-        return
-    }
-
-    setPopupData({ title, items })
-    setPopupOpen(true)
-  }
-
-  const renderTripItem = (item, index) => {
-    return (
-      <div className="p-4 border-2 border-yellow-400 bg-yellow-50 rounded-xl hover:shadow-lg transition-all">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">
-              Trip ID
-            </div>
-            <div className="text-base font-bold text-slate-900">
-              {item.tripId || '-'}
-            </div>
-            <div className="text-sm text-slate-700 mt-1">
-              {item.riderName || '-'}
-            </div>
-            <div className="text-xs text-slate-500 mt-1">
-              Driver: {item.driverName || '-'}
-            </div>
-            <div className="text-xs text-slate-500">
-              Status: {item.status || '-'}
-            </div>
-            {item.fare !== undefined && (
-              <div className="text-xs text-slate-500">
-                Fare: ₹{item.fare}
-              </div>
-            )}
-            {item.cancelReason && (
-              <div className="text-xs text-red-600 mt-1">
-                Reason: {item.cancelReason}
-              </div>
-            )}
-          </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              handleTripClick({ id: item.tripId })
-              setPopupOpen(false)
-            }}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
-          >
-            View
-          </button>
-        </div>
-      </div>
-    )
   }
 
   return (
     <div className="space-y-6">
-      {/* Header + tabs */}
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
         <PageHeader
           title="Trip Management"
-          description="Monitor trip details, lists and filter by driver, status and payment type."
-        >
-          {/* Trip Dropdown (only on details tab when no userId in params) */}
-          {activeTab === 'details' && !userIdFromParams && (
-            <TripDropdown
-              trips={allTrips}
-              selectedTripId={selectedTripId}
-              onChange={handleTripSelect}
-            />
-          )}
-
-          {/* Search Controls (only on list tab) */}
-          {activeTab === 'list' && (
-            <div className="flex gap-2 items-center justify-end">
-              <input
-                type="text"
-                placeholder="Search by trip ID, driver, or rider..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 rounded-lg border-2 border-yellow-400 bg-yellow-50 px-3 py-1 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-              />
-              <button
-                onClick={() => {
-                  setSearchQuery('')
-                  setDriverFilter('all')
-                  setStatusFilter('all')
-                  setPaymentFilter('all')
-                }}
-                className="px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors whitespace-nowrap"
-              >
-                Clear All
-              </button>
-            </div>
-          )}
-        </PageHeader>
-
-        <TabNavigation
-          tabs={TRIP_TABS}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
+          description="View trip details by selecting a trip from Rider management."
         />
       </section>
 
-      {/* TAB: Trip details */}
-      {activeTab === 'details' && (
-        <>
-          {/* Always show metrics - changes based on selected trip */}
-          <TripMetrics
-            trips={selectedTrip ? [selectedTrip] : (userIdFromParams ? tripsForUser : allTrips)}
-            onMetricClick={handleMetricClick}
-          />
-
-          {/* Show trip details if a trip is selected */}
-          {selectedTrip && (
-            <>
-              <TripDetails
-                driver={selectedTripDriver}
-                trip={selectedTrip}
-                trips={tripsForUser}
-                onSelectTrip={handleTripSelect}
-              />
-
-              {/* Show complaints section for selected trip */}
-              <TripComplaints trip={selectedTrip} />
-            </>
-          )}
-        </>
-      )}
-
-      {/* TAB: Trip list */}
-      {activeTab === 'list' && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-base font-semibold text-slate-900 mb-2">Trip list</h3>
-              <p className="text-xs text-slate-600">Overview of all trips across drivers.</p>
-            </div>
-            <div className="text-xs text-slate-600">
-              Showing <span className="font-semibold">{filteredTrips.length}</span> of <span className="font-semibold">{allTrips.length}</span> trips
-            </div>
-          </div>
-
-          {/* Filter Dropdowns */}
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex-1">
-              <label className="block text-xs font-medium text-slate-600 mb-1">
-                Driver
-              </label>
-              <select
-                value={driverFilter}
-                onChange={(e) => setDriverFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-yellow/70 focus:border-brand-yellow"
-              >
-                <option value="all">All drivers</option>
-                {distinctDrivers.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex-1">
-              <label className="block text-xs font-medium text-slate-600 mb-1">
-                Trip status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-yellow/70 focus:border-brand-yellow"
-              >
-                <option value="all">All</option>
-                {distinctStatuses.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex-1">
-              <label className="block text-xs font-medium text-slate-600 mb-1">
-                Payment type
-              </label>
-              <select
-                value={paymentFilter}
-                onChange={(e) => setPaymentFilter(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-yellow/70 focus:border-brand-yellow"
-              >
-                <option value="all">All</option>
-                {distinctPayments.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <TripListTable trips={filteredTrips} onTripClick={handleTripClick} />
+      {tripError && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {tripError}
         </div>
       )}
 
-      {/* Side Popup for Metric Details */}
-      <SidePopup
-        isOpen={popupOpen}
-        onClose={() => setPopupOpen(false)}
-        title={popupData.title}
-        data={popupData.items}
-        renderItem={renderTripItem}
-        emptyMessage="No trips available for this metric"
-      />
+      <TripDetails trip={tripData} loading={tripLoading} />
+
+      {/* Driver Queue — only show button when a trip is loaded */}
+      {tripData && (
+        <>
+          <div className="flex">
+            <button
+              onClick={handleToggleQueue}
+              disabled={queueLoading}
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold shadow transition disabled:opacity-50 ${
+                showQueue
+                  ? 'bg-slate-800 text-white'
+                  : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {queueLoading ? 'Loading…' : showQueue ? 'Hide Driver Queue' : 'Driver Queue'}
+            </button>
+          </div>
+
+          {showQueue && (
+            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+              <h3 className="text-sm font-semibold text-slate-900 mb-4">Driver Queue</h3>
+
+              {queueError && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl p-3 mb-4">
+                  {queueError}
+                </div>
+              )}
+
+              {queueLoading && (
+                <div className="text-sm text-slate-500 text-center py-6">Loading driver queue…</div>
+              )}
+
+              {!queueLoading && queueData && queueData.length === 0 && (
+                <div className="text-sm text-slate-500 text-center py-6">No drivers in queue for this trip.</div>
+              )}
+
+              {!queueLoading && queueData && queueData.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200">
+                        {['#', 'Driver', 'Pickup', 'Drop', 'Window Start', 'Window Expire'].map((h) => (
+                          <th key={h} className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {queueData.map((q, i) => (
+                        <tr key={i} className="hover:bg-slate-50 transition">
+                          <td className="py-3 pr-4">
+                            <span className="w-6 h-6 rounded-full bg-brand-yellow text-slate-900 text-[10px] font-bold flex items-center justify-center">
+                              {q.QueueNumber}
+                            </span>
+                          </td>
+                          <td className="py-3 pr-4 font-medium text-slate-800 whitespace-nowrap">{q.DriverName ?? '-'}</td>
+                          <td className="py-3 pr-4 text-slate-600 max-w-[180px] truncate" title={q.PickLocationGMapFullAddress}>
+                            {q.PickLocationGMapFullAddress ?? '-'}
+                          </td>
+                          <td className="py-3 pr-4 text-slate-600 max-w-[200px] truncate" title={q.DropLocations}>
+                            {q.DropLocations ?? '-'}
+                          </td>
+                          <td className="py-3 pr-4 whitespace-nowrap text-slate-600">{formatDate(q.PaymentWindowStarting)}</td>
+                          <td className="py-3 pr-4 whitespace-nowrap text-slate-600">{formatDate(q.PaymentWindowExpire)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+          )}
+        </>
+      )}
     </div>
   )
 }

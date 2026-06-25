@@ -22,6 +22,8 @@ export function DashboardLayout({ children }) {
       ? 'vehicles'
       : pathname.startsWith('/complaints')
       ? 'complaints'
+      : pathname.startsWith('/settlement')
+      ? 'settlement'
       : 'home'
 
   const handleChangePage = (page) => {
@@ -39,6 +41,8 @@ export function DashboardLayout({ children }) {
       navigate('/vehicles')
     } else if (page === 'complaints') {
       navigate('/complaints')
+    } else if (page === 'settlement') {
+      navigate('/settlement')
     }
   }
 
