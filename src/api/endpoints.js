@@ -69,4 +69,8 @@ export const ENDPOINTS = {
 
   // POST /coco/users/<id>/toggle-status/
   USER_TOGGLE_STATUS: (id) => `/coco/users/${id}/toggle-status/`,
+
+  // ── Settlements ───────────────────────────────────────────────────────────
+  // GET  /coco/settlements/drivers-non-settled/
+  SETTLEMENTS_DRIVERS_NON_SETTLED: '/coco/settlements/drivers-non-settled/',
 }

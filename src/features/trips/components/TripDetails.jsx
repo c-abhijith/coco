@@ -58,12 +58,14 @@ export function TripDetails({ trip, loading }) {
   const fields = [
     // Rider (top — most important)
     { label: 'Rider Name',           value: trip.RiderName },
+    { label: 'Rider Mobile',         value: trip.RiderMobileNumber },
     { label: 'Rider Status',         value: trip.RiderStatus },
     { label: 'Rider Rating',         value: trip.RiderRating },
     { label: 'Rider No Show',        value: trip.RiderNoShow },
 
     // Driver
     { label: 'Driver Name',          value: trip.DriverName },
+    { label: 'Driver Mobile',        value: trip.DriverMobileNumber },
     { label: 'Driver Status',        value: trip.DriverStatus },
     { label: 'Driver Rating',        value: trip.DriverRating },
     { label: 'Vehicle No.',          value: trip.VehicleNumber },
@@ -86,10 +88,12 @@ export function TripDetails({ trip, loading }) {
     { label: 'Pickup Time',          value: formatDate(trip.PickupTime) },
     { label: 'Dropped Time',         value: formatDate(trip.DropedTime) },
 
-    { label: 'Scheduled Trip',       value: trip.ScheduledTrip },
-    { label: 'Scheduled Time',       value: formatDate(trip.TripScheduleTime) },
-    { label: 'Expected Distance',    value: trip.ExpectedTripDistance != null ? `${trip.ExpectedTripDistance} km` : '-' },
-    { label: 'Actual Distance',      value: trip.TotalKM != null ? `${trip.TotalKM} km` : '-' },
+    { label: 'Driver Arrival',        value: formatDate(trip.DriverArrivalTime) },
+    { label: 'Scheduled Trip',        value: trip.ScheduledTrip },
+    { label: 'Scheduled Time',        value: formatDate(trip.TripScheduleTime) },
+    { label: 'Expected Distance',     value: trip.ExpectedTripDistance != null ? `${trip.ExpectedTripDistance} km` : '-' },
+    { label: 'Actual Distance',       value: trip.TotalKM != null ? `${trip.TotalKM} km` : '-' },
+    { label: 'Drivers Reassigned',    value: trip.DriversReassigned },
 
     // Financials
     { label: 'Payment Type',         value: trip.PaymentType },
@@ -97,13 +101,23 @@ export function TripDetails({ trip, loading }) {
     { label: 'Total Trip Fare',      value: fmt(trip.TotalTripFare) },
     { label: 'Collected',            value: fmt(trip.DriverCollectedPrice) },
 
-    { label: 'Driver Received',      value: fmt(trip.DriverReceived) },
+    { label: 'Driver Received',       value: fmt(trip.DriverReceived) },
     { label: 'Coco Received',        value: fmt(trip.CocoReceived) },
     { label: 'GST',                  value: fmt(trip.GST) },
     { label: 'Rider Advance',        value: fmt(trip.RiderTripAdvance) },
 
+    { label: 'Trip Fare',            value: fmt(trip.TripFare) },
+    { label: 'Platform Fee',         value: fmt(trip.PlatformFee) },
+    { label: 'User Platform Fee',    value: fmt(trip.UserPlatformFees) },
+    { label: 'Carrier Charges',      value: fmt(trip.CarrierCharges) },
+
     { label: 'Refund Amount',        value: fmt(trip.RiderRefundAmount) },
+    { label: 'Rider Settlement Adj', value: fmt(trip.RiderSettlementAdjustementAmount) },
     { label: 'Amount Settled',       value: trip.TripAmountSettled },
+    { label: 'Settlement Amount',    value: fmt(trip.TotalDriverSettlementAmt) },
+
+    { label: 'Settlement Time',      value: formatDate(trip.DriverSettlementTime) },
+    { label: 'Driver Cancel Fee',    value: fmt(trip.DriverCancellationFees) },
     { label: 'Vehicle Status',       value: trip.VehicleStatus },
     { label: 'Carrier Requested',    value: trip.IsCarrierRequested },
 

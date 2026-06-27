@@ -7,7 +7,7 @@ import { RiderPendingAmount } from '../components/RiderPendingAmount'
 import { getRiderDetailsByPhone, getRiderTripDetails, getRiderPendingAmount } from '../../../api/riderApi'
 
 export function RiderManagementPage() {
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState('9446753935')
   const [riderData, setRiderData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [trips, setTrips] = useState(null)

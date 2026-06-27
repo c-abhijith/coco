@@ -21,12 +21,16 @@ const statusColor = (status) => {
 
 // col key → data field for sorting
 const SORT_FIELDS = {
-  Created:      'TripCreationTime',
-  Scheduled:    'TripScheduleTime',
-  'Est. Fare':  'EstimatedTripFare',
-  Collected:    'CollectedAmount',
-  Coco:         'CocoReceived',
-  'Driver Rcvd':'DriverReceived',
+  Created:        'TripCreationTime',
+  Scheduled:      'TripScheduleTime',
+  'Est. Fare':    'EstimatedTripFare',
+  Collected:      'CollectedAmount',
+  Coco:           'CocoReceived',
+  'Driver Rcvd':  'DriverReceived',
+  'Trip Fare':    'TripFare',
+  'Platform Fee': 'PlatformFee',
+  'User Fee':     'UserPlatformFees',
+  GST:            'GST',
 }
 
 function SortTh({ label, sort, onSort, className = '' }) {
@@ -170,10 +174,20 @@ export function RiderTripDetails({ trips, loading }) {
       'Distance (km)':    t.GmapTotalDistance ?? '',
       'Est. Fare (₹)':   t.EstimatedTripFare != null ? Number(t.EstimatedTripFare).toFixed(2) : '',
       'Collected (₹)':   t.CollectedAmount   != null ? Number(t.CollectedAmount).toFixed(2)   : '',
-      'Coco (₹)':        t.CocoReceived      != null ? Number(t.CocoReceived).toFixed(2)      : '',
-      'Driver Rcvd (₹)': t.DriverReceived    != null ? Number(t.DriverReceived).toFixed(2)    : '',
-      'Pickup':           t.PickLocationGMapFullAddress ?? '',
-      'Drop':             t.DropLocations ?? '',
+      'Coco (₹)':          t.CocoReceived       != null ? Number(t.CocoReceived).toFixed(2)       : '',
+      'Driver Rcvd (₹)':  t.DriverReceived     != null ? Number(t.DriverReceived).toFixed(2)     : '',
+      'Trip Fare (₹)':    t.TripFare           != null ? Number(t.TripFare).toFixed(2)           : '',
+      'Platform Fee (₹)': t.PlatformFee        != null ? Number(t.PlatformFee).toFixed(2)        : '',
+      'User Fee (₹)':     t.UserPlatformFees   != null ? Number(t.UserPlatformFees).toFixed(2)   : '',
+      'GST (₹)':          t.GST                != null ? Number(t.GST).toFixed(2)                : '',
+      'Carrier (₹)':      t.CarrierCharges     != null ? Number(t.CarrierCharges).toFixed(2)     : '',
+      'Waiting Fee (₹)':  t.WaitingFee         != null ? Number(t.WaitingFee).toFixed(2)         : '',
+      'Pickup Wait (₹)':  t.PickupWaitingFee   != null ? Number(t.PickupWaitingFee).toFixed(2)   : '',
+      'Cancel Fee (₹)':   t.CancellationFee    != null ? Number(t.CancellationFee).toFixed(2)    : '',
+      'Start OTP':         t.TripStartOtp ?? '',
+      'End OTP':           t.TripEndOtp   ?? '',
+      'Pickup':            t.PickLocationGMapFullAddress ?? '',
+      'Drop':              t.DropLocations ?? '',
     }))
     const ws = XLSX.utils.json_to_sheet(rows)
     const wb = XLSX.utils.book_new()
@@ -271,8 +285,18 @@ export function RiderTripDetails({ trips, loading }) {
                   <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">Distance (km)</th>
                   <SortTh label="Est. Fare"   sort={sort} onSort={handleSort} />
                   <SortTh label="Collected"   sort={sort} onSort={handleSort} />
-                  <SortTh label="Coco"        sort={sort} onSort={handleSort} />
-                  <SortTh label="Driver Rcvd" sort={sort} onSort={handleSort} />
+                  <SortTh label="Coco"          sort={sort} onSort={handleSort} />
+                  <SortTh label="Driver Rcvd"   sort={sort} onSort={handleSort} />
+                  <SortTh label="Trip Fare"     sort={sort} onSort={handleSort} />
+                  <SortTh label="Platform Fee"  sort={sort} onSort={handleSort} />
+                  <SortTh label="User Fee"      sort={sort} onSort={handleSort} />
+                  <SortTh label="GST"           sort={sort} onSort={handleSort} />
+                  <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">Carrier</th>
+                  <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">Waiting</th>
+                  <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">Pickup Wait</th>
+                  <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">Cancel Fee</th>
+                  <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">Start OTP</th>
+                  <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">End OTP</th>
                   <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">Pickup</th>
                   <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide pb-2 pr-4 whitespace-nowrap">Drop</th>
                 </tr>
@@ -304,6 +328,16 @@ export function RiderTripDetails({ trips, loading }) {
                     <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.CollectedAmount)}</td>
                     <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.CocoReceived)}</td>
                     <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.DriverReceived)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.TripFare)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.PlatformFee)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.UserPlatformFees)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.GST)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.CarrierCharges)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.WaitingFee)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.PickupWaitingFee)}</td>
+                    <td className="py-2.5 pr-4 whitespace-nowrap">{fmt(t.CancellationFee)}</td>
+                    <td className="py-2.5 pr-4 font-mono whitespace-nowrap">{t.TripStartOtp ?? '-'}</td>
+                    <td className="py-2.5 pr-4 font-mono whitespace-nowrap">{t.TripEndOtp ?? '-'}</td>
                     <td className="py-2.5 pr-4 max-w-[180px] truncate" title={t.PickLocationGMapFullAddress}>{t.PickLocationGMapFullAddress ?? '-'}</td>
                     <td className="py-2.5 pr-4 max-w-[180px] truncate" title={t.DropLocations}>{t.DropLocations ?? '-'}</td>
                   </tr>

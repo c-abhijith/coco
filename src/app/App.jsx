@@ -14,6 +14,7 @@ import { TripDetailsPage } from '../features/trips/pages/TripDetailsPage'
 import VehicleManagementPage from '../features/vehicles/pages/VehicleManagementPage'
 import { CreateVehiclePage } from '../features/vehicles/pages/CreateVehiclePage'
 import { ComplaintManagementPage } from '../features/complaints/pages/ComplaintManagementPage'
+import { CreateComplaintPage } from '../features/complaints/pages/CreateComplaintPage'
 import { UserManagementPage } from '../features/users/pages/UserManagementPage'
 import { CreateUserPage } from '../features/users/pages/CreateUserPage'
 import { SettlementManagementPage } from '../features/settlement/pages/SettlementManagementPage'
@@ -142,6 +143,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ComplaintManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/complaints/create"
+        element={
+          <ProtectedRoute>
+            <CreateComplaintPage />
           </ProtectedRoute>
         }
       />
